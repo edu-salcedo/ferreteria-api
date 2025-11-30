@@ -22,7 +22,8 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     public ProductDTO create(ProductDTO dto) {
-        Category c = categoryRepository.findById(dto.getCategoriaId())
+
+        Category c = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
         Product p = ProductMapper.toEntity(dto, c);
         return ProductMapper.toDTO(productRepository.save(p));
@@ -41,10 +42,13 @@ public class ProductService {
     }
 
     public ProductDTO update(Long id, ProductDTO dto) {
+
+        System.out.println("Actualizando producto con id: " + id); // Log para depuración
+
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
-        Category c = categoryRepository.findById(dto.getCategoriaId())
+        Category c = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
 
         existing.setName(dto.getName());

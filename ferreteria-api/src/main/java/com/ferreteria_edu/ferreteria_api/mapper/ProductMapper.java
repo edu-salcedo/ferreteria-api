@@ -15,12 +15,13 @@ public class ProductMapper {
                 .price(p.getPrice())
                 .stock(p.getStock())
                 .state(p.isState())
-                .categoriaId(p.getCategory() != null ? p.getCategory().getId() : null)
+                .categoryId(p.getCategory() != null ? p.getCategory().getId() : null)
                 .categoriaName(p.getCategory() != null ? p.getCategory().getName() : null)
                 .build();
     }
 
     public static Product toEntity(ProductDTO dto, Category c) {
+
         Product p = new Product();
         p.setId(dto.getId());
         p.setName(dto.getName());

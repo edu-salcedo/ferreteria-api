@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b6cb2c25-0ea1-4f25-9afa-46f376f56e27" name="Changes" comment="" />
+    <list default="true" id="b6cb2c25-0ea1-4f25-9afa-46f376f56e27" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ferreteria-api/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ferreteria-api/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/dto/productDto/ProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/dto/productDto/ProductDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/CategoryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/CategoryMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/ProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/model/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/model/Category.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/model/Product.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/service/ProductService.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,6 +28,9 @@
         <option value="Class" />
       </list>
     </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/ferreteria-api/src/main/java/com/ferreteria_edu/ferreteria_api/FerreteriaApiApplication.java" root0="FORCE_HIGHLIGHTING" />
@@ -43,6 +55,8 @@
     &quot;Application.FerreteriaApiApplication.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/edwin/Desktop/javaProjects/ferreteria-api&quot;,

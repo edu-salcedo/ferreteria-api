@@ -21,7 +21,7 @@ public class ProductDTO {
     private float price;
     private int stock;
     private boolean state;
-    private Integer categoriaId;
+    private Integer categoryId;
     private String categoriaName;
 }
 

@@ -1,5 +1,6 @@
 package com.ferreteria_edu.ferreteria_api.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,5 +30,6 @@ public class Product {
     private boolean state;
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonBackReference  // Evita la serialización recursiva
     private Category category;
 }

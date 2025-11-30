@@ -1,5 +1,6 @@
 package com.ferreteria_edu.ferreteria_api.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,5 +28,6 @@ public class Category {
     private String description;
 
     @OneToMany(mappedBy = "category")
+    @JsonManagedReference  // Maneja la referencia hacia atrás
     private List<Product>listProduct;
 }
