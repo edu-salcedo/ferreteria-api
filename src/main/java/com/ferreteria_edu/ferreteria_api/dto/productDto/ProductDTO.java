@@ -23,5 +23,9 @@ public class ProductDTO {
     private boolean state;
     private Integer categoryId;
     private String categoryName;
+    private BigDecimal profitMargin;
+    private BigDecimal finalPrice;
+    private BigDecimal profit;
+
 }
 

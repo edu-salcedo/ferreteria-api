@@ -87,7 +87,6 @@ public class ProductService {
         productRepository.delete(existing);
     }
 
-
     @Transactional
     public void processPdf(MultipartFile file) throws IOException {
 
@@ -173,5 +172,40 @@ public class ProductService {
 
         return productos;
     }
+
+    public BigDecimal calProfit(Product p) {
+        if (p.getProfitMargin() == null) return BigDecimal.ZERO;
+
+        return p.getPrice()
+                .multiply(p.getProfitMargin())
+                .divide(BigDecimal.valueOf(100));
+    }
+
+    public BigDecimal calFinalPrice(Product p) {
+        return p.getPrice().add(calProfit(p));
+    }
+
+   public BigDecimal calculateProfitMargin(Integer categoryId, BigDecimal price) {
+
+            if (categoryId != null &&
+                    (categoryId == 2 || categoryId == 3  || categoryId == 8 || categoryId == 15 || categoryId == 16 || categoryId == 19)) {
+                return BigDecimal.valueOf(35);
+            }
+
+            if (price.compareTo(BigDecimal.valueOf(100)) < 0) {
+                return BigDecimal.valueOf(200);
+            } else if (price.compareTo(BigDecimal.valueOf(500)) < 0) {
+                return BigDecimal.valueOf(100);
+            } else if (price.compareTo(BigDecimal.valueOf(1000)) < 0) {
+                return BigDecimal.valueOf(70);
+            } else if (price.compareTo(BigDecimal.valueOf(10000)) < 0) {
+                return BigDecimal.valueOf(40);
+            } else if (price.compareTo(BigDecimal.valueOf(20000)) < 0) {
+                return BigDecimal.valueOf(30);
+            }
+
+            return BigDecimal.valueOf(25);
+        }
+
 
 }

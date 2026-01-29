@@ -18,7 +18,7 @@ public class FileStorageService {
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     // Allowed file extensions (e.g., images)
-    private static final String[] ALLOWED_EXTENSIONS = { "jpg", "jpeg", "png", "gif" };
+    private static final String[] ALLOWED_EXTENSIONS = { "jpg", "jpeg", "png", "gif","webp" };
 
     public FileStorageService(@Value("${file.upload-dir}") String uploadDir) {
         this.root = Paths.get(uploadDir);

@@ -1,6 +1,7 @@
 package com.ferreteria_edu.ferreteria_api.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,6 +31,9 @@ public class Product {
     private BigDecimal price;
     private int stock;
     private boolean state;
+    @Column(nullable = false)
+    private BigDecimal profitMargin = BigDecimal.valueOf(40);
+
     @ManyToOne
     @JoinColumn(name = "category_id")
     @JsonBackReference  // Evita la serialización recursiva

@@ -14,10 +14,11 @@ public class OrderItemMapper {
         return item;
     }
 
-    public static OrderItemResponseDTO toResponse(OrderItem item) {
+    public static OrderItemResponseDTO toResponse(OrderItem item, String productName) {
         OrderItemResponseDTO dto = new OrderItemResponseDTO();
         dto.setId(item.getId());
         dto.setProductId(item.getProductId());
+        dto.setProductName(productName);
         dto.setQuantity(item.getQuantity());
         dto.setUnitPrice(item.getUnitPrice());
         dto.setSubtotal(item.getSubtotal());

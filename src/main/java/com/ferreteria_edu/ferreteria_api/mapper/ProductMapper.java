@@ -4,20 +4,39 @@ import com.ferreteria_edu.ferreteria_api.dto.productDto.ProductDTO;
 import com.ferreteria_edu.ferreteria_api.model.Category;
 import com.ferreteria_edu.ferreteria_api.model.Product;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class ProductMapper {
 
     public static ProductDTO toDTO(Product p) {
+
+        BigDecimal price = p.getPrice();
+        BigDecimal margin = p.getProfitMargin(); // porcentaje
+
+        BigDecimal profit = price
+                .multiply(margin)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+        BigDecimal finalPrice = price.add(profit);
+
+        // 🔥 redondeo comercial al 100 superior
+        BigDecimal roundedFinalPrice = finalPrice
+                .divide(BigDecimal.TEN, 0, RoundingMode.CEILING)
+                .multiply(BigDecimal.TEN);
+
         return ProductDTO.builder()
                 .id(p.getId())
                 .name(p.getName())
-                .description(p.getDescription())
                 .img(p.getImg())
-                .price(p.getPrice())
+                .price(price)
+                .profitMargin(margin)
+                .profit(profit)
+                .finalPrice(roundedFinalPrice) // 👈 ya viene listo
                 .stock(p.getStock())
-                .state(p.isState())
                 .categoryId(p.getCategory() != null ? p.getCategory().getId() : null)
                 .categoryName(p.getCategory() != null ? p.getCategory().getName() : null)
-                .build();
+             .build();
     }
 
     public static Product toEntity(ProductDTO dto, Category c) {
@@ -31,6 +50,8 @@ public class ProductMapper {
         p.setStock(dto.getStock());
         p.setState(dto.isState());
         p.setCategory(c);
+        p.setProfitMargin(dto.getProfitMargin());
+
         return p;
     }
 }

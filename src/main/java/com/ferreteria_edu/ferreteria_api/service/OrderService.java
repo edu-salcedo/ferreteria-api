@@ -9,6 +9,7 @@ import com.ferreteria_edu.ferreteria_api.mapper.OrderMapper;
 import com.ferreteria_edu.ferreteria_api.model.Order;
 import com.ferreteria_edu.ferreteria_api.model.OrderItem;
 import com.ferreteria_edu.ferreteria_api.repository.OrderRepository;
+import com.ferreteria_edu.ferreteria_api.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository repository;
+    private final ProductRepository productRepository;
 
     public OrderResponseDTO createOrder(OrderDTO dto) {
         Order order = new Order();
@@ -32,6 +34,7 @@ public class OrderService {
 
         order.calculateTotal();
         Order saved = repository.save(order);
+        OrderMapper.setProductRepository(productRepository);
         return OrderMapper.toResponse(saved);
     }
 

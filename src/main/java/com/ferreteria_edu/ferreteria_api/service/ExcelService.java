@@ -30,6 +30,7 @@ public class ExcelService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductService productService;
 
     public void ExcelImport(MultipartFile file) throws Exception {
 
@@ -64,7 +65,7 @@ public class ExcelService {
                 if (name.isEmpty()) continue;
 
                 /* ========= CATEGORY ========= */
-                String categoryName = "nuevo";
+                String categoryName = "NUEVO";
                 if (categoryCell != null && categoryCell.getCellType() == CellType.STRING) {
                     categoryName = categoryCell.getStringCellValue().trim();
                 }
@@ -111,8 +112,11 @@ public class ExcelService {
                 if (imgCell != null && imgCell.getCellType() == CellType.STRING) {
                     image = imgCell.getStringCellValue().trim();
                 }
+                BigDecimal margin = productService.calculateProfitMargin(category.getId(), price);
+                if (margin == null) margin = BigDecimal.valueOf(40);
 
                 /* ========= PRODUCT ========= */
+
                 ProductDTO dto = new ProductDTO();
                 dto.setName(name);
                 dto.setPrice(price);
@@ -120,6 +124,7 @@ public class ExcelService {
                 dto.setCategoryId(category.getId());
                 dto.setCategoryName(category.getName());
                 dto.setImg(image);
+                dto.setProfitMargin(margin);
                 Product product = ProductMapper.toEntity(dto, category);
                 product.setStock(stock);
 
