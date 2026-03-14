@@ -31,7 +31,7 @@ public class Product {
     private BigDecimal price;
     private int stock;
     private boolean state;
-    @Column(nullable = false)
+    @Column(name = "profit_margin", nullable = false)
     private BigDecimal profitMargin = BigDecimal.valueOf(40);
 
     @ManyToOne

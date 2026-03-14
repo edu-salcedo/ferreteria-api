@@ -5,19 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b6cb2c25-0ea1-4f25-9afa-46f376f56e27" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderItemResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderItemResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/productDto/ProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/productDto/ProductDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/OrderItemMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/OrderItemMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/OrderMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/OrderMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/ProductMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/model/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/ExcelService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/ExcelService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/FileStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/FileStorageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/OrderService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/ProductService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

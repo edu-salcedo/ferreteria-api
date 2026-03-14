@@ -55,10 +55,7 @@ public class ProductService {
         if (imageFile != null && !imageFile.isEmpty()) {
             String path = fileStorageService.save(imageFile);
             existing.setImg(path);
-        } else {
-            existing.setImg(dto.getImg());
         }
-
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
         existing.setPrice(dto.getPrice());
@@ -189,7 +186,7 @@ public class ProductService {
 
             if (categoryId != null &&
                     (categoryId == 2 || categoryId == 3  || categoryId == 8 || categoryId == 15 || categoryId == 16 || categoryId == 19)) {
-                return BigDecimal.valueOf(35);
+                return BigDecimal.valueOf(40);
             }
 
             if (price.compareTo(BigDecimal.valueOf(100)) < 0) {
@@ -199,12 +196,12 @@ public class ProductService {
             } else if (price.compareTo(BigDecimal.valueOf(1000)) < 0) {
                 return BigDecimal.valueOf(70);
             } else if (price.compareTo(BigDecimal.valueOf(10000)) < 0) {
-                return BigDecimal.valueOf(40);
+                return BigDecimal.valueOf(50);
             } else if (price.compareTo(BigDecimal.valueOf(20000)) < 0) {
-                return BigDecimal.valueOf(30);
+                return BigDecimal.valueOf(35);
             }
 
-            return BigDecimal.valueOf(25);
+            return BigDecimal.valueOf(30);
         }
 
 
