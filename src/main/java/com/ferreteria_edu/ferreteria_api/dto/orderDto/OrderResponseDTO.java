@@ -1,5 +1,6 @@
 package com.ferreteria_edu.ferreteria_api.dto.orderDto;
 
+import com.ferreteria_edu.ferreteria_api.enun.PaymentMethod;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -10,6 +11,9 @@ public class OrderResponseDTO {
 
     private Long id;
     private LocalDateTime createdAt;
+    private BigDecimal subTotal;
     private BigDecimal totalAmount;
     private List<OrderItemResponseDTO> items;
+    private PaymentMethod paymentMethod;
+    private BigDecimal totalDiscount;
 }

@@ -119,7 +119,7 @@ public class ExcelService {
 
                 ProductDTO dto = new ProductDTO();
                 dto.setName(name);
-                dto.setPrice(price);
+                dto.setPurchasePrice(price);
                 dto.setStock(stock);
                 dto.setCategoryId(category.getId());
                 dto.setCategoryName(category.getName());

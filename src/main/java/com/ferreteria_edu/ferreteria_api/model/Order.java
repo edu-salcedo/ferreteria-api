@@ -1,9 +1,12 @@
 package com.ferreteria_edu.ferreteria_api.model;
 
+import com.ferreteria_edu.ferreteria_api.enun.PaymentMethod;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,8 +47,21 @@ public class Order {
     @Column(nullable = false)
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
-    public void calculateTotal() {
-        this.totalAmount = items.stream()
+    @Column(nullable = false)
+    private BigDecimal subtotal = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private BigDecimal surCharge = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private BigDecimal discount = BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PaymentMethod paymentMethod = PaymentMethod.EFECTIVO;
+
+    public void calculateSubtotal() {
+        this.subtotal = items.stream()
                 .map(OrderItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
@@ -53,6 +69,5 @@ public class Order {
     public void addItem(OrderItem item) {
         item.setOrder(this);
         items.add(item);
-        calculateTotal();
     }
 }

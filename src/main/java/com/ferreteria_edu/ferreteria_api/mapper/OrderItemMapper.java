@@ -10,18 +10,21 @@ public class OrderItemMapper {
         OrderItem item = new OrderItem();
         item.setProductId(dto.getProductId());
         item.setQuantity(dto.getQuantity());
-        item.setUnitPrice(dto.getUnitPrice());
+        item.setSalePrice(dto.getSalePrice());
         return item;
     }
 
     public static OrderItemResponseDTO toResponse(OrderItem item, String productName) {
         OrderItemResponseDTO dto = new OrderItemResponseDTO();
+
         dto.setId(item.getId());
         dto.setProductId(item.getProductId());
         dto.setProductName(productName);
         dto.setQuantity(item.getQuantity());
-        dto.setUnitPrice(item.getUnitPrice());
+        dto.setSalePrice(item.getSalePrice());
         dto.setSubtotal(item.getSubtotal());
+        dto.setSalePriceFinal(item.getSalePriceFinal());
+        dto.setDiscountApplied(item.getDiscountApplied());
         return dto;
     }
 }

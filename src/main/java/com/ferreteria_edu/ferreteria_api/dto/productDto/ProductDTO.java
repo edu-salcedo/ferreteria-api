@@ -18,13 +18,13 @@ public class ProductDTO {
     private String name;
     private String description;
     private String img;
-    private BigDecimal price;
+    private BigDecimal purchasePrice;
     private int stock;
     private boolean state;
     private Integer categoryId;
     private String categoryName;
     private BigDecimal profitMargin;
-    private BigDecimal finalPrice;
+    private BigDecimal salePrice;
     private BigDecimal profit;
 
 }

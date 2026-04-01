@@ -33,14 +33,17 @@ public class OrderItem {
     private Integer quantity;
 
     @Column(nullable = false)
-    private BigDecimal unitPrice;
+    private BigDecimal salePrice;
+
+    private BigDecimal  salePriceFinal;
+
+    private BigDecimal discountApplied;
 
     // evita que Order se carga automáticamente cuando cargas el OrderItem
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    public BigDecimal getSubtotal() {
-        return unitPrice.multiply(BigDecimal.valueOf(quantity));
-    }
+    @Column(nullable = false)
+    private BigDecimal subtotal;
 }

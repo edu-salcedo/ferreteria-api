@@ -2,6 +2,7 @@ package com.ferreteria_edu.ferreteria_api.controller;
 
 import com.ferreteria_edu.ferreteria_api.dto.orderDto.OrderDTO;
 import com.ferreteria_edu.ferreteria_api.dto.orderDto.OrderItemDTO;
+import com.ferreteria_edu.ferreteria_api.dto.orderDto.OrderRequestDTO;
 import com.ferreteria_edu.ferreteria_api.dto.orderDto.OrderResponseDTO;
 import com.ferreteria_edu.ferreteria_api.service.OrderService;
 import lombok.AllArgsConstructor;
@@ -24,9 +25,12 @@ import java.util.List;
 public class OrderController {
     private final OrderService service;
 
-    @PostMapping
-    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderDTO dto) {
-        return ResponseEntity.ok(service.createOrder(dto));
+    @PostMapping()
+    public OrderResponseDTO create(@RequestBody OrderRequestDTO request) {
+
+        OrderResponseDTO calculated = service.calculateOrder(request);
+        // guardar order + items en BD
+        return calculated;
     }
 
     @GetMapping("/{id}")
@@ -60,4 +64,11 @@ public class OrderController {
             @PathVariable Long itemId) {
         return ResponseEntity.ok(service.deleteItem(orderId, itemId));
     }
+
+    @PostMapping("/preview")
+    public ResponseEntity<OrderResponseDTO> previewOrder(@RequestBody OrderRequestDTO request) {
+        OrderResponseDTO dto = service.calculateOrder(request);
+        return ResponseEntity.ok(dto);
+    }
 }
+

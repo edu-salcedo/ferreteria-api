@@ -58,10 +58,11 @@ public class ProductService {
         }
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
-        existing.setPrice(dto.getPrice());
+        existing.setPurchasePrice(dto.getPurchasePrice());
         existing.setStock(dto.getStock());
         existing.setState(dto.isState());
         existing.setCategory(c);
+        existing.setProfitMargin(dto.getProfitMargin());
 
         return ProductMapper.toDTO(productRepository.save(existing));
     }
@@ -108,7 +109,7 @@ public class ProductService {
 
             // Actualizar campos importantes
             product.setName(dto.getName().trim().toUpperCase());
-            product.setPrice(dto.getPrice());
+            product.setPurchasePrice(dto.getPurchasePrice());
             product.setStock(product.getStock() + dto.getStock());
             product.setState(true);
             product.setCategory(categoriaDefault);
@@ -139,6 +140,8 @@ public class ProductService {
                     String siguiente = lineas[i + 1].trim();
                     String[] valores = siguiente.split("\\s+");
 
+
+
                     try {
                         // Stock: la primera columna numérica de la línea
                         for (String val : valores) {
@@ -151,7 +154,7 @@ public class ProductService {
                         // Precio: tomar el último valor numérico de la línea
                         for (int j = valores.length - 1; j >= 0; j--) {
                             if (valores[j].matches("\\d+(\\.\\d+)?")) {
-                                dto.setPrice(new BigDecimal(valores[j]));
+                                dto.setPurchasePrice(new BigDecimal(valores[j]));
                                 break;
                             }
                         }
@@ -159,7 +162,7 @@ public class ProductService {
                         dto.setState(true);
                     } catch (Exception e) {
                         dto.setStock(0);
-                        dto.setPrice(BigDecimal.ZERO);
+                        dto.setPurchasePrice(BigDecimal.ZERO);
                     }
                 }
 
@@ -173,19 +176,20 @@ public class ProductService {
     public BigDecimal calProfit(Product p) {
         if (p.getProfitMargin() == null) return BigDecimal.ZERO;
 
-        return p.getPrice()
+        return p.getPurchasePrice()
                 .multiply(p.getProfitMargin())
                 .divide(BigDecimal.valueOf(100));
     }
 
     public BigDecimal calFinalPrice(Product p) {
-        return p.getPrice().add(calProfit(p));
+        return p.getPurchasePrice().add(calProfit(p));
     }
 
    public BigDecimal calculateProfitMargin(Integer categoryId, BigDecimal price) {
 
             if (categoryId != null &&
-                    (categoryId == 2 || categoryId == 3  || categoryId == 8 || categoryId == 15 || categoryId == 16 || categoryId == 19)) {
+                    //acquasystem       awaduct
+                    (categoryId == 1 || categoryId == 2  || categoryId == 7 || categoryId == 15 || categoryId == 17 || categoryId == 19)) {
                 return BigDecimal.valueOf(40);
             }
 
@@ -194,7 +198,7 @@ public class ProductService {
             } else if (price.compareTo(BigDecimal.valueOf(500)) < 0) {
                 return BigDecimal.valueOf(100);
             } else if (price.compareTo(BigDecimal.valueOf(1000)) < 0) {
-                return BigDecimal.valueOf(70);
+                return BigDecimal.valueOf(80);
             } else if (price.compareTo(BigDecimal.valueOf(10000)) < 0) {
                 return BigDecimal.valueOf(50);
             } else if (price.compareTo(BigDecimal.valueOf(20000)) < 0) {
