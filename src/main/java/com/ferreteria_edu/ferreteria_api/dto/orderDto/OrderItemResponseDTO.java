@@ -10,8 +10,8 @@ public class OrderItemResponseDTO {
     private Long productId;
     private String productName;
     private Integer quantity;
-    private BigDecimal salePrice;
-    private BigDecimal salePriceFinal;
+    private BigDecimal unitePrice;
+    private BigDecimal finalPrice;
     private BigDecimal discountApplied;
     private BigDecimal subtotal;
 }

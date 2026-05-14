@@ -189,23 +189,27 @@ public class ProductService {
 
             if (categoryId != null &&
                     //acquasystem       awaduct
-                    (categoryId == 1 || categoryId == 2  || categoryId == 7 || categoryId == 15 || categoryId == 17 || categoryId == 19)) {
+                    (categoryId == 1 || categoryId == 2  || categoryId == 7 || categoryId == 14|| categoryId == 15|| categoryId == 19)) {
+                return BigDecimal.valueOf(40);
+            }
+       if (categoryId != null && categoryId == 17 ) {
+           return BigDecimal.valueOf(60);
+       }
+
+            if (price.compareTo(BigDecimal.valueOf(100)) < 0) {
+
+                return BigDecimal.valueOf(200);
+            } else if (price.compareTo(BigDecimal.valueOf(500)) < 0) {
+                return BigDecimal.valueOf(120);
+            } else if (price.compareTo(BigDecimal.valueOf(1000)) < 0) {
+                return BigDecimal.valueOf(100);
+            } else if (price.compareTo(BigDecimal.valueOf(10000)) < 0) {
+                return BigDecimal.valueOf(60);
+            } else if (price.compareTo(BigDecimal.valueOf(20000)) < 0) {
                 return BigDecimal.valueOf(40);
             }
 
-            if (price.compareTo(BigDecimal.valueOf(100)) < 0) {
-                return BigDecimal.valueOf(200);
-            } else if (price.compareTo(BigDecimal.valueOf(500)) < 0) {
-                return BigDecimal.valueOf(100);
-            } else if (price.compareTo(BigDecimal.valueOf(1000)) < 0) {
-                return BigDecimal.valueOf(80);
-            } else if (price.compareTo(BigDecimal.valueOf(10000)) < 0) {
-                return BigDecimal.valueOf(50);
-            } else if (price.compareTo(BigDecimal.valueOf(20000)) < 0) {
-                return BigDecimal.valueOf(35);
-            }
-
-            return BigDecimal.valueOf(30);
+            return BigDecimal.valueOf(35);
         }
 
 

@@ -119,6 +119,8 @@ public class OrderService {
     // ----------------- MÉTODO PRIVADO PARA ARMAR ORDEN -----------------
     private OrderResponseDTO buildOrder(OrderRequestDTO request, boolean persist) {
 
+
+        System.out.println("ORDER OBJECT: " + request);
         PaymentMethod paymentMethod = request.getPaymentMethod() != null
                 ? request.getPaymentMethod()
                 : PaymentMethod.EFECTIVO;
@@ -140,6 +142,8 @@ public class OrderService {
         if (persist) order.setPaymentMethod(paymentMethod);
 
         for (OrderItemRequestDTO itemReq : request.getItems()) {
+
+            System.out.println("DEBUG ITEM: " + itemReq);
 
             Product product = productRepository.findById(itemReq.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
@@ -163,8 +167,8 @@ public class OrderService {
             itemDTO.setProductId(product.getId());
             itemDTO.setProductName(product.getName());
             itemDTO.setQuantity(itemReq.getQuantity());
-            itemDTO.setSalePrice(unitPrice);
-            itemDTO.setSalePriceFinal(finalPrice);
+            itemDTO.setUnitePrice(unitPrice);
+            itemDTO.setFinalPrice(finalPrice);
 
             itemDTO.setDiscountApplied(discountApplied);
             itemDTO.setSubtotal(subTotal);
@@ -180,11 +184,13 @@ public class OrderService {
 
                 OrderItem item = new OrderItem();
                 item.setProductId(product.getId());
+                item.setProductName(product.getName());
                 item.setQuantity(itemReq.getQuantity());
-                item.setSalePriceFinal(finalPrice);
+                item.setFinalPrice(finalPrice);
+                item.setUnit_price(unitPrice);
                 item.setDiscountApplied(discountApplied);
                 item.setSubtotal(subTotal);
-
+                item.setOrder(order);
                 order.addItem(item);
             }
         }

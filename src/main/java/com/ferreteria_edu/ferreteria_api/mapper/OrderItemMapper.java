@@ -10,20 +10,20 @@ public class OrderItemMapper {
         OrderItem item = new OrderItem();
         item.setProductId(dto.getProductId());
         item.setQuantity(dto.getQuantity());
-        item.setSalePrice(dto.getSalePrice());
+        item.setUnit_price(dto.getUnitPrice());
         return item;
     }
 
-    public static OrderItemResponseDTO toResponse(OrderItem item, String productName) {
+    public static OrderItemResponseDTO toResponse(OrderItem item) {
         OrderItemResponseDTO dto = new OrderItemResponseDTO();
 
         dto.setId(item.getId());
         dto.setProductId(item.getProductId());
-        dto.setProductName(productName);
+        dto.setProductName(item.getProductName());
         dto.setQuantity(item.getQuantity());
-        dto.setSalePrice(item.getSalePrice());
+        dto.setUnitePrice(item.getUnit_price());
         dto.setSubtotal(item.getSubtotal());
-        dto.setSalePriceFinal(item.getSalePriceFinal());
+        dto.setFinalPrice(item.getFinalPrice());
         dto.setDiscountApplied(item.getDiscountApplied());
         return dto;
     }

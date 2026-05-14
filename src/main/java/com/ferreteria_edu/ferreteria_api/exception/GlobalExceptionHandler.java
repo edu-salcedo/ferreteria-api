@@ -9,26 +9,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler  {
+
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
-    }
-    @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<Map<String, String>> handleStockException(InsufficientStockException ex) {
+    public ResponseEntity<Map<String, String>> handleNotFound(
+            ResourceNotFoundException ex
+    ) {
+
         Map<String, String> response = new HashMap<>();
-        response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+    }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<Map<String, String>> handleStockException(
+            InsufficientStockException ex
+    ) {
+
+        Map<String, String> response = new HashMap<>();
+
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGeneralException(Exception ex) {
+    public ResponseEntity<Map<String, String>> handleGeneralException(
+            Exception ex
+    ) {
+
         Map<String, String> response = new HashMap<>();
-        response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+
+        response.put("message", ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
     }
-
 }
-
-

@@ -35,7 +35,7 @@ public class OrderMapper {
                                         .orElse("Producto " + productId);
                             }
 
-                            return OrderItemMapper.toResponse(item, name);
+                            return OrderItemMapper.toResponse(item);
                         })
                         .collect(Collectors.toList())
         );

@@ -30,12 +30,15 @@ public class OrderItem {
     private Long productId;
 
     @Column(nullable = false)
+    private String productName;
+
+    @Column(nullable = false)
     private Integer quantity;
 
     @Column(nullable = false)
-    private BigDecimal salePrice;
+    private BigDecimal unit_price;
 
-    private BigDecimal  salePriceFinal;
+    private BigDecimal finalPrice;
 
     private BigDecimal discountApplied;
 

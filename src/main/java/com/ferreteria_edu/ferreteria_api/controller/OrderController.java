@@ -26,11 +26,14 @@ public class OrderController {
     private final OrderService service;
 
     @PostMapping()
-    public OrderResponseDTO create(@RequestBody OrderRequestDTO request) {
+    public ResponseEntity<OrderResponseDTO> create(@RequestBody OrderRequestDTO request) {
+        return ResponseEntity.ok(service.createOrder(request));
+    }
 
-        OrderResponseDTO calculated = service.calculateOrder(request);
-        // guardar order + items en BD
-        return calculated;
+    @PostMapping("/preview")
+    public ResponseEntity<OrderResponseDTO> previewOrder(@RequestBody OrderRequestDTO request) {
+        OrderResponseDTO dto = service.calculateOrder(request);
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/{id}")
@@ -65,10 +68,5 @@ public class OrderController {
         return ResponseEntity.ok(service.deleteItem(orderId, itemId));
     }
 
-    @PostMapping("/preview")
-    public ResponseEntity<OrderResponseDTO> previewOrder(@RequestBody OrderRequestDTO request) {
-        OrderResponseDTO dto = service.calculateOrder(request);
-        return ResponseEntity.ok(dto);
-    }
 }
 
