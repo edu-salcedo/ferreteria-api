@@ -1,0 +1,42 @@
+package com.ferreteria_edu.ferreteria_api.product.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.ferreteria_edu.ferreteria_api.category.entity.Category;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
+    private String description;
+    private String img;
+    private BigDecimal purchasePrice;
+    private int stock;
+    private boolean state;
+    @Column(name = "profit_margin", nullable = false)
+    private BigDecimal profitMargin = BigDecimal.valueOf(40);
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    @JsonBackReference  // Evita la serialización recursiva
+    private Category category;
+}

@@ -1,16 +1,16 @@
 package com.ferreteria_edu.ferreteria_api.service;
 
-import com.ferreteria_edu.ferreteria_api.dto.productDto.ProductDTO;
-import com.ferreteria_edu.ferreteria_api.mapper.ProductMapper;
-import com.ferreteria_edu.ferreteria_api.model.Category;
-import com.ferreteria_edu.ferreteria_api.model.Product;
-import com.ferreteria_edu.ferreteria_api.repository.CategoryRepository;
-import com.ferreteria_edu.ferreteria_api.repository.ProductRepository;
+import com.ferreteria_edu.ferreteria_api.product.dto.ProductDTO;
+import com.ferreteria_edu.ferreteria_api.product.mapper.ProductMapper;
+import com.ferreteria_edu.ferreteria_api.category.entity.Category;
+import com.ferreteria_edu.ferreteria_api.product.entity.Product;
+import com.ferreteria_edu.ferreteria_api.product.service.ProductService;
+import com.ferreteria_edu.ferreteria_api.category.repository.CategoryRepository;
+import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;

@@ -10,4 +10,5 @@ public class FerreteriaApiApplication {
 		SpringApplication.run(FerreteriaApiApplication.class, args);
 	}
 
+
 }

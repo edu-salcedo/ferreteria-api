@@ -1,0 +1,31 @@
+package com.ferreteria_edu.ferreteria_api.product.dto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.math.BigDecimal;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class ProductDTO {
+
+    private Long id;
+    private String name;
+    private String description;
+    private String img;
+    private BigDecimal purchasePrice;
+    private int stock;
+    private boolean state;
+    private Integer categoryId;
+    private String categoryName;
+    private BigDecimal profitMargin;
+    private BigDecimal salePrice;
+    private BigDecimal profit;
+
+}
+
