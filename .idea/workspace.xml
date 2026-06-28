@@ -5,48 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b6cb2c25-0ea1-4f25-9afa-46f376f56e27" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/inventory/entity/Inventory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/purchase/dto/PurchaseItemDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/purchase/dto/PurchaseRequestDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/purchase/entity/PurchaseItem.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/purchase/entity/PurchaseOrder.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/purchase/repository/PurchaseRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/purchase/service/PurchaseService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/supplier/controller/SupplierController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/supplier/entity/Supplier.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/supplier/repository/SupplierRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/FerreteriaApiApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/FerreteriaApiApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/controller/CategoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/category/controller/CategoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/controller/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/product/controller/ProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/categoryDto/CategoryDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/category/dto/CategoryDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/dto/OrderDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderItemDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/dto/OrderItemDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderItemRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/dto/OrderItemRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderItemResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/dto/OrderItemResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/dto/OrderRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/orderDto/OrderResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/dto/OrderResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/dto/productDto/ProductDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/product/dto/ProductDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/enun/PaymentMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/enun/PaymentMethod.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/CategoryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/category/mapper/CategoryMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/OrderItemMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/mapper/OrderItemMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/OrderMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/mapper/OrderMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/mapper/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/product/mapper/ProductMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/model/Category.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/category/entity/Category.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/model/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/entity/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/model/OrderItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/entity/OrderItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/model/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/product/entity/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/repository/CategoryRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/category/repository/CategoryRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/repository/OrderRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/repository/ProductRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/product/repository/ProductRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/CategoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/category/service/CategoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/ExcelService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/ExcelService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/InventoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/inventory/service/InventoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/PriceCalculatorService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/order/service/PriceCalculatorService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/ProductService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/product/service/ProductService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/config/WebConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/config/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/FileStorageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ferreteria_edu/ferreteria_api/service/FileStorageService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,25 +45,25 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.FerreteriaApiApplication.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/edwin/Desktop/SanitarioApp/ferreteria-api",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Language Defaults",
-    "settings.editor.splitter.proportion": "0.3101093"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.FerreteriaApiApplication.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/edwin/Desktop/SanitarioApp/ferreteria-api&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Language Defaults&quot;,
+    &quot;settings.editor.splitter.proportion&quot;: &quot;0.3101093&quot;
   }
-}]]></component>
+}</component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="b6cb2c25-0ea1-4f25-9afa-46f376f56e27" name="Changes" comment="" />

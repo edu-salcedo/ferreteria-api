@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
@@ -40,15 +41,17 @@ public class FileStorageService {
             if (!Files.exists(root)) {
                 Files.createDirectories(root); // Ensure the directory exists
             }
-
-            String filename = UUID.randomUUID() + "-" + file.getOriginalFilename();
-            Path filePath = root.resolve(filename);
+            String fileName= file.getOriginalFilename();
+            String nameFile = fileName.substring(0, fileName.lastIndexOf('.')).trim();
+            String shortHash = UUID.randomUUID().toString().substring(0, 4);
+            String finalName = nameFile+ "-"+ shortHash+"."+extension;
+            Path filePath = root.resolve(finalName);
 
             // Copy the file to the target location
             Files.copy(file.getInputStream(), filePath);
-
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             // Return the relative path to the file, to be stored in the DB or returned to the client
-            return "/productimg/" + filename;
+            return "/productimg/" + finalName;
 
         } catch (Exception e) {
             throw new RuntimeException("Error al guardar esta imagen", e);
