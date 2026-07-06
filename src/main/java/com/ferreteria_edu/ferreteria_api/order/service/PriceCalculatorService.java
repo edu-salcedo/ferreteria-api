@@ -8,60 +8,80 @@ import java.math.RoundingMode;
 import java.util.List;
 
 @Service
+
 public class PriceCalculatorService {
 
-    // Calcula la ganancia de un producto
-    public BigDecimal calculateProfit(Product p) {
-        if (p.getProfitMargin() == null) return BigDecimal.ZERO;
-        return p.getPurchasePrice()
-                .multiply(p.getProfitMargin())
+    // =========================
+    // GANANCIA POR VARIANTE
+    // =========================
+    public BigDecimal calculateProfit(BigDecimal purchasePrice, BigDecimal margin) {
+
+        if (purchasePrice == null || margin == null) {
+            return BigDecimal.ZERO;
+        }
+
+        return purchasePrice
+                .multiply(margin)
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 
-    // Precio de venta base (purchasePrice + ganancia)
-    public BigDecimal calculateSalePrice(Product p, BigDecimal surchargePercent) {
-        BigDecimal basePrice = p.getPurchasePrice().add(calculateProfit(p));
-        BigDecimal fifty = new BigDecimal("50");
-        BigDecimal rounded = basePrice
-                .divide(fifty, 0, RoundingMode.UP)
-                .multiply(fifty);
-
-        System.out.println(rounded);
-        if (surchargePercent != null && surchargePercent.compareTo(BigDecimal.ZERO) != 0) {
-
-            rounded = rounded.add(rounded.multiply(surchargePercent).divide(BigDecimal.valueOf(100)));
-        }
-        return rounded;
+    // =========================
+    // PRECIO BASE (SIN REDONDEO)
+    // =========================
+    public BigDecimal calculateBasePrice(BigDecimal purchasePrice, BigDecimal profit) {
+        return purchasePrice.add(profit);
     }
 
-    // Aplica recargos y descuentos
-    public BigDecimal calculateFinalPrice(BigDecimal basePrice, List<BigDecimal> discountsPercent) {
-        BigDecimal price = basePrice;
+    // =========================
+    // DESCUENTOS
+    // =========================
+    public BigDecimal applyDiscounts(BigDecimal price, List<BigDecimal> discounts) {
 
-        // descuentos
-        if (discountsPercent != null) {
-            for (BigDecimal discount : discountsPercent) {
-                price = price.subtract(price.multiply(discount).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP));
+        BigDecimal result = price;
+
+        if (discounts != null) {
+            for (BigDecimal d : discounts) {
+                result = result.subtract(
+                        result.multiply(d)
+                                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                );
             }
         }
 
-        return price.setScale(2, RoundingMode.HALF_UP);
+        return result;
     }
 
-    // Subtotal = precio final * cantidad
-    public BigDecimal calculateSubtotal(BigDecimal finalPrice, int quantity) {
-        return finalPrice.multiply(BigDecimal.valueOf(quantity));
+    // =========================
+    // RECARGO
+    // =========================
+    public BigDecimal applySurcharge(BigDecimal price, BigDecimal surchargePercent) {
+
+        if (surchargePercent == null || surchargePercent.compareTo(BigDecimal.ZERO) == 0) {
+            return price;
+        }
+
+        return price.add(
+                price.multiply(surchargePercent)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+        );
     }
 
-    // % de descuento real aplicado
-    public BigDecimal calculateDiscountApplied(BigDecimal basePrice, BigDecimal finalPrice) {
-        if (basePrice.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
-        return basePrice.subtract(finalPrice)
+    // =========================
+    // SUBTOTAL
+    // =========================
+    public BigDecimal calculateSubtotal(BigDecimal price, int quantity) {
+        return price.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    // =========================
+    // DESCUENTO REAL
+    // =========================
+    public BigDecimal calculateDiscountApplied(BigDecimal base, BigDecimal finalPrice) {
+
+        if (base.compareTo(BigDecimal.ZERO) == 0) return BigDecimal.ZERO;
+
+        return base.subtract(finalPrice)
                 .multiply(BigDecimal.valueOf(100))
-                .divide(basePrice, 2, RoundingMode.HALF_UP);
-    }
-
-    public BigDecimal calculateFinalPrice(BigDecimal basePrice, BigDecimal discountPercent) {
-        return calculateFinalPrice(basePrice, List.of(discountPercent));
+                .divide(base, 2, RoundingMode.HALF_UP);
     }
 }

@@ -3,18 +3,20 @@ package com.ferreteria_edu.ferreteria_api.order.service;
 import com.ferreteria_edu.ferreteria_api.enun.PaymentMethod;
 import com.ferreteria_edu.ferreteria_api.exception.InsufficientStockException;
 import com.ferreteria_edu.ferreteria_api.exception.ResourceNotFoundException;
-import com.ferreteria_edu.ferreteria_api.order.mapper.OrderItemMapper;
+
 import com.ferreteria_edu.ferreteria_api.order.mapper.OrderMapper;
-import com.ferreteria_edu.ferreteria_api.order.dto.OrderItemDTO;
+
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderItemRequestDTO;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderItemResponseDTO;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderRequestDTO;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderResponseDTO;
 import com.ferreteria_edu.ferreteria_api.order.entity.Order;
 import com.ferreteria_edu.ferreteria_api.order.entity.OrderItem;
-import com.ferreteria_edu.ferreteria_api.product.entity.Product;
+
 import com.ferreteria_edu.ferreteria_api.order.repository.OrderRepository;
+import com.ferreteria_edu.ferreteria_api.product.entity.ProductVariant;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
+import com.ferreteria_edu.ferreteria_api.product.repository.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,38 +30,108 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final OrderRepository repository;
+    private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final PriceCalculatorService priceCalculator;
+    private final ProductVariantRepository variantRepository;
 
     // ----------------- CREAR PEDIDO -----------------
     @Transactional
-    public OrderResponseDTO createOrder(OrderRequestDTO request) {
-        return buildOrder(request, true);
+    public OrderResponseDTO createOrder(OrderRequestDTO dto) {
+
+        Order order = new Order();
+        order.setCreatedAt(LocalDateTime.now());
+        order.setPaymentMethod(dto.getPaymentMethod());
+
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (OrderItemRequestDTO itemDTO : dto.getItems()) {
+
+            ProductVariant variant = variantRepository
+                    .findById(itemDTO.getVariantId())
+                    .orElseThrow(() ->
+                            new RuntimeException("Variante no encontrada"));
+
+            if (variant.getStock() < itemDTO.getQuantity()) {
+                throw new RuntimeException(
+                        "Stock insuficiente: " + variant.getMeasure()
+                );
+            }
+
+            // descontar stock
+            variant.setStock(
+                    variant.getStock() - itemDTO.getQuantity()
+            );
+
+            BigDecimal unitPrice = variant.getSalePrice();
+
+            BigDecimal subtotal =
+                    unitPrice.multiply(
+                            BigDecimal.valueOf(itemDTO.getQuantity())
+                    );
+
+            OrderItem item = new OrderItem();
+            item.setOrder(order);
+            item.setVariant(variant);
+            item.setProductName(variant.getProduct().getName());
+            item.setMeasure(variant.getMeasure());
+            item.setQuantity(itemDTO.getQuantity());
+            item.setUnitPrice(unitPrice);
+            item.setSubtotal(subtotal);
+
+            order.addItem(item);
+
+            total = total.add(subtotal);
+        }
+
+        // aplicar descuento / recargo
+        if (dto.getDiscount() != null) {
+            total = total.subtract(
+                    total.multiply(dto.getDiscount())
+                            .divide(BigDecimal.valueOf(100))
+            );
+        }
+
+        if (dto.getSurcharge() != null) {
+            total = total.add(
+                    total.multiply(dto.getSurcharge())
+                            .divide(BigDecimal.valueOf(100))
+            );
+        }
+
+        order.setTotalAmount(total);
+        order.calculateSubtotal();
+
+        Order saved = orderRepository.save(order);
+
+        return OrderMapper.toResponse(saved);
     }
+
+
 
     // ----------------- CALCULAR PRESUPUESTO -----------------
     public OrderResponseDTO calculateOrder(OrderRequestDTO request) {
         return buildOrder(request, false);
     }
 
+
     // ----------------- MÉTODOS CRUD -----------------
     public OrderResponseDTO getOrderById(Long id) {
-        Order order = repository.findById(id)
+        Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No se encontró orden con ID: " + id));
         return OrderMapper.toResponse(order);
     }
 
     public List<OrderResponseDTO> getAllOrders() {
-        return repository.findAll()
+        return orderRepository.findAll()
                 .stream()
                 .map(OrderMapper::toResponse)
                 .toList();
     }
 
-    @Transactional
+   /* @Transactional
     public OrderResponseDTO addItem(Long orderId, OrderItemDTO dto) {
-        Order order = repository.findById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         Product product = productRepository.findById(dto.getProductId())
@@ -79,139 +151,62 @@ public class OrderService {
 
         return OrderMapper.toResponse(repository.save(order));
     }
-
+*/
     @Transactional
-    public OrderResponseDTO updateOrder( Long orderId,  OrderRequestDTO request)
-    {
+    public OrderResponseDTO updateOrder(Long orderId, OrderRequestDTO dto) {
 
-        Order order = repository.findById(orderId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Orden no encontrada" )  );
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Orden no encontrada"));
 
-        // ========================================
-        // DEVOLVER STOCK DE ITEMS VIEJOS
-        // ========================================
-
-        for (OrderItem oldItem : order.getItems()) {
-
-            Product product = productRepository.findById(
-                    oldItem.getProductId()
-            ).orElseThrow(() ->
-                    new ResourceNotFoundException("Producto no encontrado")
-            );
-
-            product.setStock(  product.getStock() + oldItem.getQuantity());
-            productRepository.save(product);
+        // devolver stock anterior
+        for (OrderItem old : order.getItems()) {
+            ProductVariant variant = old.getVariant();
+            variant.setStock(variant.getStock() + old.getQuantity());
         }
-
-        // ========================================
-        // LIMPIAR ITEMS
-        // ========================================
 
         order.getItems().clear();
 
         BigDecimal total = BigDecimal.ZERO;
-        BigDecimal subtotal = BigDecimal.ZERO;
+        for (OrderItemRequestDTO itemDTO : dto.getItems()) {
 
-        // ========================================
-        // CREAR NUEVOS ITEMS
-        // ========================================
+            ProductVariant variant = variantRepository.findById(itemDTO.getVariantId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Variante no encontrada"));
 
-        for (OrderItemRequestDTO itemReq : request.getItems()) {
-
-            Product product = productRepository.findById(
-                    itemReq.getProductId()
-            ).orElseThrow(() ->
-                    new ResourceNotFoundException(
-                            "Producto no encontrado"
-                    )
-            );
-
-            // VALIDAR STOCK
-            System.out.println("======== VALIDANDO ========");
-
-            System.out.println(
-                    "Producto: " + product.getName()
-            );
-
-            System.out.println(
-                    "Stock actual: " + product.getStock()
-            );
-
-            System.out.println(
-                    "Cantidad solicitada: " + itemReq.getQuantity()
-            );
-
-            if (product.getStock() < itemReq.getQuantity()) {
-
+            if (variant.getStock() < itemDTO.getQuantity()) {
                 throw new InsufficientStockException(
-                        "Stock insuficiente para "
-                                + product.getName()
+                        "Stock insuficiente: " + variant.getMeasure()
                 );
             }
 
-            // DESCONTAR STOCK
+            variant.setStock(variant.getStock() - itemDTO.getQuantity());
 
-            product.setStock(
-                    product.getStock() - itemReq.getQuantity()
-            );
-
-            productRepository.save(product);
-
-            // CALCULAR PRECIOS
-
-            BigDecimal finalPrice = itemReq.getFinalPrice();
-
-            BigDecimal itemSubtotal =
-                    finalPrice.multiply(
-                            BigDecimal.valueOf(
-                                    itemReq.getQuantity()
-                            )
-                    );
-
-            // CREAR ITEM
-
+            BigDecimal unitPrice = variant.getSalePrice();
+            BigDecimal subtotal = unitPrice.multiply(BigDecimal.valueOf(itemDTO.getQuantity()));
             OrderItem item = new OrderItem();
-
             item.setOrder(order);
-
-            item.setProductId(product.getId());
-
-            item.setProductName(product.getName());
-
-            item.setQuantity(itemReq.getQuantity());
-
-            item.setBasePrice(product.getPurchasePrice());
-            item.setUnit_price(finalPrice);
-            item.setFinalPrice(finalPrice);
-
-            item.setSubtotal(itemSubtotal);
-
-            // AGREGAR
+            item.setVariant(variant);
+            item.setProductName(variant.getProduct().getName());
+            item.setMeasure(variant.getMeasure());
+            item.setQuantity(itemDTO.getQuantity());
+            item.setUnitPrice(unitPrice);
+            item.setSubtotal(subtotal);
 
             order.addItem(item);
 
-            subtotal = subtotal.add(itemSubtotal);
-            total = total.add(itemSubtotal);
+            total = total.add(subtotal);
         }
-
-        // ========================================
-        // ACTUALIZAR ORDEN
-        // ========================================
-
-        order.setSubtotal(subtotal);
-
+        order.setSubtotal(total);
         order.setTotalAmount(total);
+        order.setPaymentMethod(dto.getPaymentMethod());
 
-        order.setPaymentMethod( request.getPaymentMethod());
-        order.setSurcharge(request.getSurcharge());
-        repository.save(order);
-
-        return OrderMapper.toResponse(order);
+        return OrderMapper.toResponse(orderRepository.save(order));
     }
-    @Transactional
+
+
+
+            @Transactional
     public OrderResponseDTO deleteItem(Long orderId, Long itemId) {
-        Order order = repository.findById(orderId)
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         boolean removed = order.getItems().removeIf(i -> i.getId().equals(itemId));
@@ -220,42 +215,29 @@ public class OrderService {
 
         order.calculateSubtotal();
 
-        return OrderMapper.toResponse(repository.save(order));
+        return OrderMapper.toResponse(orderRepository.save(order));
     }
 
     @Transactional
     public void deleteOrder(Long id) {
 
-        Order order = repository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Orden no encontrada"
-                        )
-                );
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Orden no encontrada"));
 
-        // DEVOLVER STOCK
-
+        // devolver stock
         for (OrderItem item : order.getItems()) {
-
-            Product product = productRepository.findById(
-                    item.getProductId()
-            ).orElseThrow();
-
-            product.setStock(
-                    product.getStock() + item.getQuantity()
-            );
-
-            productRepository.save(product);
+            ProductVariant variant = item.getVariant();
+            variant.setStock(variant.getStock() + item.getQuantity());
         }
 
-        repository.delete(order);
+        orderRepository.delete(order);
     }
 
     // ----------------- MÉTODO PRIVADO PARA ARMAR ORDEN -----------------
     private OrderResponseDTO buildOrder(OrderRequestDTO request, boolean persist) {
 
-
         System.out.println("ORDER OBJECT: " + request);
+
         PaymentMethod paymentMethod = request.getPaymentMethod() != null
                 ? request.getPaymentMethod()
                 : PaymentMethod.EFECTIVO;
@@ -264,12 +246,12 @@ public class OrderService {
                 ? request.getDiscount()
                 : BigDecimal.ZERO;
 
-        // Recargo solo si es tarjeta
         BigDecimal surchargePercent = paymentMethod == PaymentMethod.TARJETA
                 ? BigDecimal.valueOf(10)
                 : BigDecimal.ZERO;
 
         List<OrderItemResponseDTO> items = new ArrayList<>();
+
         BigDecimal orderSubTotal = BigDecimal.ZERO;
         BigDecimal orderTotal = BigDecimal.ZERO;
 
@@ -280,72 +262,98 @@ public class OrderService {
 
             System.out.println("DEBUG ITEM: " + itemReq);
 
-            Product product = productRepository.findById(itemReq.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
+            // 🔥 CAMBIO CLAVE: VARIANT NO PRODUCT
+            ProductVariant variant = variantRepository.findById(itemReq.getVariantId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Variante no encontrada"));
 
-            if (persist && product.getStock() < itemReq.getQuantity()) {
-                throw new InsufficientStockException("Stock insuficiente para: " + product.getName());
+            if (persist && variant.getStock() < itemReq.getQuantity()) {
+                throw new InsufficientStockException(
+                        "Stock insuficiente para: " + variant.getMeasure()
+                );
             }
 
-            // ✅ Calculamos el precio base y final usando PriceCalculatorService
-            BigDecimal unitPrice = priceCalculator.calculateSalePrice(product, surchargePercent);
+            // ===============================
+            // PRECIOS BASADOS EN VARIANTE
+            // ===============================
 
-            BigDecimal finalPrice = priceCalculator.calculateFinalPrice(
-                         unitPrice, List.of(discountPercent));
+            BigDecimal unitPrice = variant.getSalePrice();
 
-            BigDecimal subTotal = priceCalculator.calculateSubtotal(finalPrice, itemReq.getQuantity());
-            BigDecimal discountApplied = priceCalculator.calculateDiscountApplied(unitPrice, finalPrice);
-            BigDecimal totalFinal= priceCalculator.calculateSubtotal(finalPrice, itemReq.getQuantity());
+            BigDecimal finalPrice = unitPrice.subtract(
+                    unitPrice.multiply(discountPercent)
+                            .divide(BigDecimal.valueOf(100))
+            );
 
-            // DTO de respuesta
+            BigDecimal subTotal = finalPrice.multiply(
+                    BigDecimal.valueOf(itemReq.getQuantity())
+            );
+
+            BigDecimal discountApplied = unitPrice.subtract(finalPrice);
+
+            // ===============================
+            // RESPONSE DTO
+            // ===============================
+
             OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
-            itemDTO.setProductId(product.getId());
-            itemDTO.setProductName(product.getName());
+            itemDTO.setVariantId(variant.getId());
+            itemDTO.setProductName(variant.getProduct().getName());
+            itemDTO.setMeasure(variant.getMeasure());
             itemDTO.setQuantity(itemReq.getQuantity());
-            itemDTO.setBasePrice(product.getPurchasePrice());
-            itemDTO.setUnitePrice(unitPrice);
-            itemDTO.setFinalPrice(finalPrice);
-
-            itemDTO.setDiscountApplied(discountApplied);
+            itemDTO.setUnitPrice(unitPrice);
             itemDTO.setSubtotal(subTotal);
 
             items.add(itemDTO);
-            orderSubTotal=orderSubTotal.add(priceCalculator.calculateSubtotal(unitPrice, itemReq.getQuantity()));
-            orderTotal = orderTotal.add(totalFinal);
 
-            // Guardar item si es venta real
+            orderSubTotal = orderSubTotal.add(unitPrice.multiply(
+                    BigDecimal.valueOf(itemReq.getQuantity())
+            ));
+
+            orderTotal = orderTotal.add(subTotal);
+
+            // ===============================
+            // PERSISTENCIA
+            // ===============================
+
             if (persist) {
-                product.setStock(product.getStock() - itemReq.getQuantity());
-                productRepository.save(product);
+
+                variant.setStock(
+                        variant.getStock() - itemReq.getQuantity()
+                );
+
+                variantRepository.save(variant);
 
                 OrderItem item = new OrderItem();
-                item.setProductId(product.getId());
-                item.setProductName(product.getName());
+                item.setVariant(variant);
+                item.setProductName(variant.getProduct().getName());
+                item.setMeasure(variant.getMeasure());
                 item.setQuantity(itemReq.getQuantity());
-                item.setFinalPrice(finalPrice);
-                item.setUnit_price(unitPrice);
-                item.setBasePrice(product.getPurchasePrice());
-                item.setDiscountApplied(discountApplied);
+                item.setUnitPrice(unitPrice);
                 item.setSubtotal(subTotal);
                 item.setOrder(order);
+
                 order.addItem(item);
             }
         }
 
-        // Respuesta final
+        // ===============================
+        // RESPONSE FINAL
+        // ===============================
+
         OrderResponseDTO response = new OrderResponseDTO();
         response.setItems(items);
-        response.setTotalAmount(orderTotal);
         response.setPaymentMethod(paymentMethod);
         response.setCreatedAt(LocalDateTime.now());
         response.setSubTotal(orderSubTotal);
+        response.setTotalAmount(orderTotal);
         response.setTotalDiscount(orderSubTotal.subtract(orderTotal));
 
-        // Persistir orden si corresponde
+        // ===============================
+        // SAVE ORDER
+        // ===============================
+
         if (persist) {
             order.setSubtotal(orderSubTotal);
             order.setTotalAmount(orderTotal);
-            repository.save(order);
+            orderRepository.save(order);
         }
 
         return response;

@@ -1,8 +1,9 @@
 package com.ferreteria_edu.ferreteria_api.purchase.service;
 
 import com.ferreteria_edu.ferreteria_api.exception.ResourceNotFoundException;
-import com.ferreteria_edu.ferreteria_api.product.entity.Product;
+import com.ferreteria_edu.ferreteria_api.product.entity.ProductVariant;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
+import com.ferreteria_edu.ferreteria_api.product.repository.ProductVariantRepository;
 import com.ferreteria_edu.ferreteria_api.purchase.dto.PurchaseItemDTO;
 import com.ferreteria_edu.ferreteria_api.purchase.dto.PurchaseRequestDTO;
 import com.ferreteria_edu.ferreteria_api.purchase.entity.PurchaseItem;
@@ -19,10 +20,13 @@ import java.time.LocalDateTime;
 
 @Service
 public class PurchaseService {
-     private SupplierRepository supplierRepository;
-     private ProductRepository productRepository;
-     private PurchaseRepository purchaseRepository;
+    private SupplierRepository supplierRepository;
+    private ProductRepository productRepository;
+    private PurchaseRepository purchaseRepository;
+    private ProductVariantRepository variantRepository;
+
     @Transactional
+
     public PurchaseOrder createPurchase(PurchaseRequestDTO request) {
 
         Supplier supplier = supplierRepository.findById(request.getSupplierId())
@@ -36,12 +40,16 @@ public class PurchaseService {
 
         for (PurchaseItemDTO dto : request.getItems()) {
 
-            Product product = productRepository.findById(dto.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+            ProductVariant variant = variantRepository.findById(dto.getVariantId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Variante no encontrada"));
 
             PurchaseItem item = new PurchaseItem();
 
-            item.setProductName(product.getName());
+            item.setId(variant.getId());
+            item.setProductName(variant.getProduct().getName());
+            item.setMeasure(variant.getMeasure());
+
             item.setQuantity(dto.getQuantity());
             item.setUnitCost(dto.getUnitCost());
 
@@ -55,9 +63,22 @@ public class PurchaseService {
 
             total = total.add(subtotal);
 
-            // ⭐ IMPORTANTE: actualizar stock
-            product.setStock(product.getStock() + dto.getQuantity());
-            productRepository.save(product);
+            // Actualizar costo de compra
+            variant.setPurchasePrice(dto.getUnitCost());
+
+            // Actualizar precio de venta
+            BigDecimal salePrice = dto.getUnitCost().add(
+                    dto.getUnitCost()
+                            .multiply(variant.getProfitMargin())
+                            .divide(BigDecimal.valueOf(100))
+            );
+
+            variant.setSalePrice(salePrice);
+
+            // Actualizar stock
+            variant.setStock(variant.getStock() + dto.getQuantity());
+
+            variantRepository.save(variant);
         }
 
         purchase.setTotalAmount(total);
@@ -65,5 +86,4 @@ public class PurchaseService {
         return purchaseRepository.save(purchase);
     }
 }
-
 

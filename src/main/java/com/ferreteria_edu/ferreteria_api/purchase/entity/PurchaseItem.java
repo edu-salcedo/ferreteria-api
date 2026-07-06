@@ -24,6 +24,8 @@ public class PurchaseItem {
 
     private BigDecimal subtotal;
 
+    private String measure;
+
     @ManyToOne
     @JoinColumn(name = "purchase_order_id")
     private PurchaseOrder purchaseOrder;

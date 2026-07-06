@@ -1,9 +1,12 @@
 package com.ferreteria_edu.ferreteria_api.order.mapper;
 
+import com.ferreteria_edu.ferreteria_api.order.dto.OrderItemResponseDTO;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderResponseDTO;
 import com.ferreteria_edu.ferreteria_api.order.entity.Order;
+import com.ferreteria_edu.ferreteria_api.order.entity.OrderItem;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 
@@ -16,29 +19,39 @@ public class OrderMapper {
     }
 
     public static OrderResponseDTO toResponse(Order order) {
+
         OrderResponseDTO dto = new OrderResponseDTO();
+
         dto.setId(order.getId());
         dto.setCreatedAt(order.getCreatedAt());
+        dto.setSubTotal(order.getSubtotal());
         dto.setTotalAmount(order.getTotalAmount());
         dto.setPaymentMethod(order.getPaymentMethod());
 
-        dto.setItems(
-                order.getItems()
-                        .stream()
-                        .map(item -> {
-                            Long productId = item.getProductId();
-                            String name = "Producto desconocido";
+        List<OrderItemResponseDTO> items = order.getItems()
+                .stream()
+                .map(OrderMapper::mapItem)
+                .toList();
 
-                            if (productId != null && productRepository != null) {
-                                name = productRepository.findById(productId)
-                                        .map(p -> p.getName())
-                                        .orElse("Producto " + productId);
-                            }
+        dto.setItems(items);
 
-                            return OrderItemMapper.toResponse(item);
-                        })
-                        .collect(Collectors.toList())
+        dto.setTotalDiscount(
+                order.getSubtotal().subtract(order.getTotalAmount())
         );
+
+        return dto;
+    }
+
+    private static OrderItemResponseDTO mapItem(OrderItem item) {
+
+        OrderItemResponseDTO dto = new OrderItemResponseDTO();
+
+        dto.setVariantId(item.getVariant().getId());
+        dto.setProductName(item.getProductName());
+        dto.setMeasure(item.getMeasure());
+        dto.setQuantity(item.getQuantity());
+        dto.setUnitPrice(item.getUnitPrice());
+        dto.setSubtotal(item.getSubtotal());
 
         return dto;
     }

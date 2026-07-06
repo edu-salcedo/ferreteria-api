@@ -1,7 +1,6 @@
 package com.ferreteria_edu.ferreteria_api.product.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ferreteria_edu.ferreteria_api.category.entity.Category;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -19,7 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -27,24 +25,24 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+public class ProductVariant {
 
-public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String description;
-    private String img;
-    private boolean state;
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    @JsonBackReference  // Evita la serialización recursiva
-    private Category category;
 
-    @OneToMany(mappedBy = "product",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<ProductVariant> variants = new ArrayList<>();
+    private String measure;
+
+    private BigDecimal purchasePrice;
+
+    private BigDecimal salePrice;
+
+    private int stock;
+
+    private BigDecimal profitMargin;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    @JsonBackReference
+    private Product product;
 }

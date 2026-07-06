@@ -1,9 +1,11 @@
 package com.ferreteria_edu.ferreteria_api.service;
 
 import com.ferreteria_edu.ferreteria_api.product.dto.ProductDTO;
+import com.ferreteria_edu.ferreteria_api.product.entity.ProductVariant;
 import com.ferreteria_edu.ferreteria_api.product.mapper.ProductMapper;
 import com.ferreteria_edu.ferreteria_api.category.entity.Category;
 import com.ferreteria_edu.ferreteria_api.product.entity.Product;
+import com.ferreteria_edu.ferreteria_api.product.repository.ProductVariantRepository;
 import com.ferreteria_edu.ferreteria_api.product.service.ProductService;
 import com.ferreteria_edu.ferreteria_api.category.repository.CategoryRepository;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
@@ -21,7 +23,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
-
+import java.math.RoundingMode;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 
 @Service
@@ -30,19 +35,23 @@ public class ExcelService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductVariantRepository variantRepository;
     private final ProductService productService;
 
     public void ExcelImport(MultipartFile file) throws Exception {
 
         String filename = file.getOriginalFilename();
+
         if (filename == null ||
-                !(filename.toLowerCase().endsWith(".xlsx") || filename.toLowerCase().endsWith(".xls"))) {
-            throw new Exception("Solo se permiten archivos Excel (.xlsx o .xls)");
+                !(filename.endsWith(".xlsx") || filename.endsWith(".xls"))) {
+            throw new Exception("Solo Excel permitido");
         }
+
+        Map<String, Category> categoryCache = new HashMap<>();
 
         try (InputStream is = file.getInputStream()) {
 
-            Workbook workbook = filename.toLowerCase().endsWith(".xlsx")
+            Workbook workbook = filename.endsWith(".xlsx")
                     ? new XSSFWorkbook(is)
                     : new HSSFWorkbook(is);
 
@@ -50,86 +59,137 @@ public class ExcelService {
             FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // encabezado
 
-                Cell imgCell = row.getCell(0, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell nameCell = row.getCell(2, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell categoryCell = row.getCell(3, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell stockCell = row.getCell(4, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell priceCell = row.getCell(5, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-
-
-                if (nameCell == null || priceCell == null) continue;
-
-                String name = nameCell.getStringCellValue().trim();
-                if (name.isEmpty()) continue;
-
-                /* ========= CATEGORY ========= */
-                String categoryName = "NUEVO";
-                if (categoryCell != null && categoryCell.getCellType() == CellType.STRING) {
-                    categoryName = categoryCell.getStringCellValue().trim();
+                if (row.getRowNum() == 0) {
+                    continue;
                 }
 
-                final String finalCategoryName = categoryName;
+                String name = getString(row.getCell(2));
 
-                Category category = categoryRepository
-                        .findByNameIgnoreCase(finalCategoryName)
-                        .orElseGet(() -> {
-                            Category c = new Category();
-                            c.setName(finalCategoryName);
-                            return categoryRepository.save(c);
-                        });
+                if (name == null || name.isBlank()) {
+                    continue;
+                }
 
-                /* ========= STOCK (cantidad) ========= */
-                int stock = 0;
-                if (stockCell != null) {
-                    Cell evaluatedStock = evaluator.evaluateInCell(stockCell);
-                    if (evaluatedStock.getCellType() == CellType.NUMERIC) {
-                        stock = (int) evaluatedStock.getNumericCellValue();
+                String categoryName = getString(row.getCell(3));
+
+                if (categoryName == null || categoryName.isBlank()) {
+                    categoryName = "SIN CATEGORIA";
+                }
+
+                categoryName = categoryName.trim().toUpperCase();
+
+                int stock = getInt(row.getCell(4), evaluator);
+
+                BigDecimal price = getBigDecimal(row.getCell(5), evaluator);
+
+                String image = getString(row.getCell(0));
+
+                // ==========================
+                // BUSCAR / CREAR CATEGORIA
+                // ==========================
+
+                Category category = categoryCache.get(categoryName);
+
+                if (category == null) {
+
+                    Optional<Category> optionalCategory =
+                            categoryRepository.findByNameIgnoreCase(categoryName);
+
+                    if (optionalCategory.isPresent()) {
+
+                        category = optionalCategory.get();
+
+                    } else {
+
+                        Category newCategory = new Category();
+                        newCategory.setName(categoryName);
+
+                        category = categoryRepository.save(newCategory);
                     }
+
+                    categoryCache.put(categoryName, category);
                 }
 
-                /* ========= PRICE ========= */
-                BigDecimal price = BigDecimal.ZERO;
-                //evalua si la celda tiene una fórmula si no queda el mismo valor
-                Cell evaluatedPrice = evaluator.evaluateInCell(priceCell);
+                // ==========================
+                // BUSCAR / CREAR PRODUCTO
+                // ==========================
 
-                if (evaluatedPrice.getCellType() == CellType.NUMERIC) {
-                    price = BigDecimal.valueOf(evaluatedPrice.getNumericCellValue());
-                } else if (evaluatedPrice.getCellType() == CellType.STRING) {
-                    String raw = evaluatedPrice.getStringCellValue().trim();
-                    if (!raw.equalsIgnoreCase("s/precio")) {
-                        raw = raw.replace(".", "").replace(",", ".");
-                        try {
-                            price = new BigDecimal(raw);
-                        } catch (Exception ignored) {
-                            price = BigDecimal.ZERO;
-                        }
-                    }
+                Product product;
+
+                Optional<Product> optionalProduct =
+                        productRepository.findByName(name.trim().toUpperCase());
+
+                if (optionalProduct.isPresent()) {
+
+                    product = optionalProduct.get();
+
+                } else {
+
+                    product = new Product();
+                    product.setName(name.trim().toUpperCase());
+                    product.setImg(image);
+                    product.setCategory(category);
+                    product.setState(true);
+
+                    product = productRepository.save(product);
                 }
 
-                String image = null;
-                if (imgCell != null && imgCell.getCellType() == CellType.STRING) {
-                    image = imgCell.getStringCellValue().trim();
-                }
-                BigDecimal margin = productService.calculateProfitMargin(category.getId(), price);
-                if (margin == null) margin = BigDecimal.valueOf(40);
+                // ==========================
+                // CREAR VARIANTE
+                // ==========================
 
-                /* ========= PRODUCT ========= */
+                ProductVariant variant = new ProductVariant();
 
-                ProductDTO dto = new ProductDTO();
-                dto.setName(name);
-                dto.setPurchasePrice(price);
-                dto.setStock(stock);
-                dto.setCategoryId(category.getId());
-                dto.setCategoryName(category.getName());
-                dto.setImg(image);
-                dto.setProfitMargin(margin);
-                Product product = ProductMapper.toEntity(dto, category);
-                product.setStock(stock);
+                variant.setProduct(product);
+                variant.setMeasure("UNICO");
+                variant.setPurchasePrice(price);
+                variant.setStock(stock);
 
-                productRepository.save(product);
+                BigDecimal margin =
+                        productService.calculateProfitMargin(category.getId(), price);
+
+                variant.setProfitMargin(margin);
+
+                BigDecimal salePrice = price.add(
+                        price.multiply(margin)
+                                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                );
+
+                variant.setSalePrice(salePrice);
+
+                variantRepository.save(variant);
             }
+        }
+    }
+
+    // ================= HELPERS =================
+
+    private String getString(Cell cell) {
+        if (cell == null) return null;
+        return cell.toString().trim();
+    }
+
+    private int getInt(Cell cell, FormulaEvaluator eval) {
+        if (cell == null) return 0;
+        Cell c = eval.evaluateInCell(cell);
+        return c.getCellType() == CellType.NUMERIC
+                ? (int) c.getNumericCellValue()
+                : 0;
+    }
+
+    private BigDecimal getBigDecimal(Cell cell, FormulaEvaluator eval) {
+        if (cell == null) return BigDecimal.ZERO;
+
+        Cell c = eval.evaluateInCell(cell);
+
+        if (c.getCellType() == CellType.NUMERIC) {
+            return BigDecimal.valueOf(c.getNumericCellValue());
+        }
+
+        try {
+            return new BigDecimal(c.toString().replace(",", "."));
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
         }
     }
 }

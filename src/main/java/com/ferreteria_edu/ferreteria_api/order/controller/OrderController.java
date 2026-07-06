@@ -27,7 +27,7 @@ public class OrderController {
     @PostMapping()
     public ResponseEntity<OrderResponseDTO> create(@RequestBody OrderRequestDTO request)
     {
-        return ResponseEntity.ok(service.createOrder(request));
+       return ResponseEntity.ok(service.createOrder(request));
     }
 
     @PostMapping("/preview")
@@ -47,12 +47,6 @@ public class OrderController {
     public ResponseEntity<List<OrderResponseDTO>> getAllOrders()
     {
         return ResponseEntity.ok(service.getAllOrders());
-    }
-
-    @PostMapping("/{orderId}/items")
-    public ResponseEntity<OrderResponseDTO> addItem( @PathVariable Long orderId, @RequestBody OrderItemDTO dto)
-    {
-        return ResponseEntity.ok(service.addItem(orderId, dto));
     }
 
     @PutMapping("/{id}")
