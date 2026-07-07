@@ -1,6 +1,7 @@
 package com.ferreteria_edu.ferreteria_api.purchase.service;
 
 import com.ferreteria_edu.ferreteria_api.exception.ResourceNotFoundException;
+import com.ferreteria_edu.ferreteria_api.order.service.PriceCalculatorService;
 import com.ferreteria_edu.ferreteria_api.product.entity.ProductVariant;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductVariantRepository;
@@ -12,18 +13,20 @@ import com.ferreteria_edu.ferreteria_api.purchase.repository.PurchaseRepository;
 import com.ferreteria_edu.ferreteria_api.supplier.entity.Supplier;
 import com.ferreteria_edu.ferreteria_api.supplier.repository.SupplierRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+@RequiredArgsConstructor
 @Service
 public class PurchaseService {
     private SupplierRepository supplierRepository;
     private ProductRepository productRepository;
     private PurchaseRepository purchaseRepository;
     private ProductVariantRepository variantRepository;
+    private PriceCalculatorService priceCalculatorService;
 
     @Transactional
 
@@ -67,13 +70,8 @@ public class PurchaseService {
             variant.setPurchasePrice(dto.getUnitCost());
 
             // Actualizar precio de venta
-            BigDecimal salePrice = dto.getUnitCost().add(
-                    dto.getUnitCost()
-                            .multiply(variant.getProfitMargin())
-                            .divide(BigDecimal.valueOf(100))
-            );
 
-            variant.setSalePrice(salePrice);
+            variant.setSalePrice(priceCalculatorService.calculateSalePrice(variant));
 
             // Actualizar stock
             variant.setStock(variant.getStock() + dto.getQuantity());

@@ -1,7 +1,10 @@
 package com.ferreteria_edu.ferreteria_api.product.service;
 
+import com.ferreteria_edu.ferreteria_api.order.service.PriceCalculatorService;
+import com.ferreteria_edu.ferreteria_api.product.dto.ImportResultDTO;
 import com.ferreteria_edu.ferreteria_api.product.dto.ProductDTO;
 import com.ferreteria_edu.ferreteria_api.exception.ResourceNotFoundException;
+import com.ferreteria_edu.ferreteria_api.product.dto.ProductImportDTO;
 import com.ferreteria_edu.ferreteria_api.product.dto.ProductVariantDTO;
 import com.ferreteria_edu.ferreteria_api.product.entity.ProductVariant;
 import com.ferreteria_edu.ferreteria_api.product.mapper.ProductMapper;
@@ -25,6 +28,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,6 +39,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final FileStorageService fileStorageService;
     private final ProductVariantRepository productVariantRepository;
+   private final PriceCalculatorService priceCalculatorService;
 
     public ProductDTO create(ProductDTO dto, MultipartFile imageFile) {
 
@@ -48,7 +53,6 @@ public class ProductService {
 
         Product product = ProductMapper.toEntity(dto, c);
 
-// Crear las variantes
         if (dto.getVariants() != null) {
 
             dto.getVariants().forEach(v -> {
@@ -57,19 +61,19 @@ public class ProductService {
 
                 variant.setProduct(product);
 
+                // Calcular precio de venta
+                variant.setSalePrice(
+                        priceCalculatorService.calculateSalePrice(variant)
+                );
+
                 product.getVariants().add(variant);
-
             });
-
         }
 
         Product saved = productRepository.save(product);
 
         return ProductMapper.toDTO(saved);
     }
-
-
-
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto, MultipartFile imageFile) {
 
@@ -131,21 +135,17 @@ public class ProductService {
         return ProductMapper.toDTO(saved);
     }
 
-
     public List<ProductDTO> findAll() {
         return productRepository.findAll().stream()
                 .map(ProductMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
-
-
     public ProductDTO findById(Long id) {
         Product p = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
         return ProductMapper.toDTO(p);
     }
-
 
     public void delete(Long id) {
         Product existing = productRepository.findById(id)
@@ -374,6 +374,5 @@ public class ProductService {
 
             return BigDecimal.valueOf(35);
         }
-
 
 }

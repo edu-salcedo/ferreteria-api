@@ -1,5 +1,6 @@
 package com.ferreteria_edu.ferreteria_api.controller;
 
+import com.ferreteria_edu.ferreteria_api.product.dto.ImportResultDTO;
 import com.ferreteria_edu.ferreteria_api.service.ExcelService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +19,12 @@ public class ExelController {
      private final ExcelService excelService;
 
     @PostMapping("/import")
-    public ResponseEntity<?> ProductImport(@RequestParam("file") MultipartFile file) {
-        try {
-            excelService.ExcelImport(file);
-            return ResponseEntity.ok("Productos importados correctamente.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error al importar: " + e.getMessage());
-        }
+    public ResponseEntity<ImportResultDTO> importExcel(
+            @RequestParam("file") MultipartFile file
+    ) throws Exception {
+
+        return ResponseEntity.ok(
+                excelService.importExcel(file)
+        );
     }
 }
