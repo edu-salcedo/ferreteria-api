@@ -19,4 +19,5 @@ public class OrderDTO {
     private List<OrderItemDTO> items;
     private PaymentMethod paymentMethod;
     private int discount;
+    private boolean invoice;
 }

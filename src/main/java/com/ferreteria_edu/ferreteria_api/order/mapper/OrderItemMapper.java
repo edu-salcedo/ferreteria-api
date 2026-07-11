@@ -1,6 +1,5 @@
 package com.ferreteria_edu.ferreteria_api.order.mapper;
 
-import com.ferreteria_edu.ferreteria_api.order.dto.OrderItemDTO;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderItemRequestDTO;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderItemResponseDTO;
 import com.ferreteria_edu.ferreteria_api.order.entity.Order;
@@ -11,7 +10,8 @@ import java.math.BigDecimal;
 
 public class OrderItemMapper {
 
-    public static OrderItem toEntity(OrderItemRequestDTO dto, ProductVariant variant, Order order) {
+    public static OrderItem toEntity(OrderItemRequestDTO dto, ProductVariant variant, Order order,
+            BigDecimal finalPrice, BigDecimal discountApplied, BigDecimal subtotal) {
 
         OrderItem item = new OrderItem();
 
@@ -19,15 +19,12 @@ public class OrderItemMapper {
         item.setVariant(variant);
         item.setProductName(variant.getProduct().getName());
         item.setMeasure(variant.getMeasure());
-
+        item.setBasePrice(variant.getPurchasePrice());
         item.setQuantity(dto.getQuantity());
-
         item.setUnitPrice(variant.getSalePrice());
-        item.setSubtotal(
-                variant.getSalePrice()
-                        .multiply(BigDecimal.valueOf(dto.getQuantity()))
-        );
-
+        item.setFinalPrice(finalPrice);
+        item.setDiscountApplied(discountApplied);
+        item.setSubtotal(subtotal);
         return item;
     }
 
@@ -39,10 +36,12 @@ public class OrderItemMapper {
         dto.setVariantId(item.getVariant().getId());
         dto.setProductName(item.getProductName());
         dto.setMeasure(item.getMeasure());
+        dto.setBasePrice(item.getBasePrice());
         dto.setQuantity(item.getQuantity());
         dto.setUnitPrice(item.getUnitPrice());
+        dto.setFinalPrice(item.getFinalPrice());
+        dto.setDiscountApplied(item.getDiscountApplied());
         dto.setSubtotal(item.getSubtotal());
-
         return dto;
     }
 }

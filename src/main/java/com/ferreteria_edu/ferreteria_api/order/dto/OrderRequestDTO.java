@@ -9,7 +9,8 @@ import java.util.List;
 @Data
 public class OrderRequestDTO {
     private List<OrderItemRequestDTO> items;
-    private BigDecimal discount;     // %
-    private BigDecimal surcharge;    // %
+    private BigDecimal discount; // %
+    private BigDecimal surcharge; // %
     private PaymentMethod paymentMethod;
+    private boolean invoice;
 }

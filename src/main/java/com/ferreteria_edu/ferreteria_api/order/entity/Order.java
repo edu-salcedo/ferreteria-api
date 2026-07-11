@@ -23,12 +23,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-//Crear objetos de manera flexible usando el patrón builder
-@Builder
+@NoArgsConstructor // Crear objetos de manera flexible usando el patrón builder
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -36,29 +35,37 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    //Mantieen valores por defecto al usar @Builder
     @Builder.Default
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items = new ArrayList<>();
 
+    @Builder.Default
     @Column(nullable = false)
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(nullable = false)
     private BigDecimal subtotal = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(nullable = false)
     private BigDecimal surcharge = BigDecimal.ZERO;
 
+    @Builder.Default
     @Column(nullable = false)
     private BigDecimal discount = BigDecimal.ZERO;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentMethod paymentMethod = PaymentMethod.EFECTIVO;
+    @Builder.Default
+    @Column(name = "is_invoice", nullable = false)
+    private boolean invoice = false;
 
     public void calculateSubtotal() {
         this.subtotal = items.stream()
@@ -67,8 +74,10 @@ public class Order {
     }
 
     public void addItem(OrderItem item) {
-
-        items.add(item);
+        if (this.items == null) {
+            this.items = new ArrayList<>(); // Asegura la instancia si llegó a quedar nula
+        }
+        this.items.add(item);
         item.setOrder(this);
     }
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Data
 public class OrderResponseDTO {
 
@@ -16,4 +17,6 @@ public class OrderResponseDTO {
     private List<OrderItemResponseDTO> items;
     private PaymentMethod paymentMethod;
     private BigDecimal totalDiscount;
+    private BigDecimal totalSurcharge;
+    private boolean invoice;
 }

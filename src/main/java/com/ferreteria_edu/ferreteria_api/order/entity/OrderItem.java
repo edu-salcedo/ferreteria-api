@@ -36,6 +36,9 @@ public class OrderItem {
     private String productName;
 
     @Column(nullable = false)
+    private BigDecimal basePrice;
+
+    @Column(nullable = false)
     private String measure;
 
     @Column(nullable = false)
@@ -47,6 +50,9 @@ public class OrderItem {
     @Column(nullable = false)
     private BigDecimal subtotal;
 
+    @Column(name = "final_price", nullable = false)
+    private BigDecimal finalPrice;
+    @Column(name = "discount_applied")
     private BigDecimal discountApplied;
 
     @ManyToOne(fetch = FetchType.LAZY)

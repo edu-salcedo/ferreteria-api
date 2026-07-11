@@ -10,6 +10,8 @@ public class OrderItemResponseDTO {
     private Long id;
     private Long variantId;
 
+    private BigDecimal basePrice;
+
     private String productName;
 
     private String measure;
@@ -19,4 +21,8 @@ public class OrderItemResponseDTO {
     private BigDecimal unitPrice;
 
     private BigDecimal subtotal;
+
+    private BigDecimal finalPrice;
+
+    private BigDecimal discountApplied;
 }
