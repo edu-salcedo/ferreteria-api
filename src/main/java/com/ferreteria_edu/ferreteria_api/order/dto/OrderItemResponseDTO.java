@@ -10,7 +10,7 @@ public class OrderItemResponseDTO {
     private Long id;
     private Long variantId;
 
-    private BigDecimal basePrice;
+    private BigDecimal purchasePrice;
 
     private String productName;
 

@@ -19,4 +19,5 @@ public class OrderResponseDTO {
     private BigDecimal totalDiscount;
     private BigDecimal totalSurcharge;
     private boolean invoice;
+    private BigDecimal invoiceAmount;
 }

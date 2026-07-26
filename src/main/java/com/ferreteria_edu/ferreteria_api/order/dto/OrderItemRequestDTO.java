@@ -8,6 +8,6 @@ import java.math.BigDecimal;
 public class OrderItemRequestDTO {
     private Long variantId;
     private Integer quantity;
-    private BigDecimal basePrice;
+    private BigDecimal purchasePrice;
     private BigDecimal finalPrice;
 }

@@ -19,7 +19,7 @@ public class OrderItemMapper {
         item.setVariant(variant);
         item.setProductName(variant.getProduct().getName());
         item.setMeasure(variant.getMeasure());
-        item.setBasePrice(variant.getPurchasePrice());
+        item.setPurchasePrice(variant.getPurchasePrice());
         item.setQuantity(dto.getQuantity());
         item.setUnitPrice(variant.getSalePrice());
         item.setFinalPrice(finalPrice);
@@ -33,10 +33,10 @@ public class OrderItemMapper {
         OrderItemResponseDTO dto = new OrderItemResponseDTO();
 
         dto.setId(item.getId());
-        dto.setVariantId(item.getVariant().getId());
+        dto.setVariantId(item.getVariant() != null ? item.getVariant().getId() : null);
         dto.setProductName(item.getProductName());
         dto.setMeasure(item.getMeasure());
-        dto.setBasePrice(item.getBasePrice());
+        dto.setPurchasePrice(item.getPurchasePrice());
         dto.setQuantity(item.getQuantity());
         dto.setUnitPrice(item.getUnitPrice());
         dto.setFinalPrice(item.getFinalPrice());

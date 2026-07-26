@@ -122,7 +122,7 @@ public class OrderService {
                         item.setQuantity(itemDTO.getQuantity());
                         item.setUnitPrice(unitPrice);
                         item.setSubtotal(subtotal);
-                        item.setBasePrice(variant.getPurchasePrice() != null ? variant.getPurchasePrice()
+                        item.setPurchasePrice(variant.getPurchasePrice() != null ? variant.getPurchasePrice()
                                         : BigDecimal.ZERO);
                         item.setFinalPrice(variant.getSalePrice() != null ? variant.getSalePrice() : BigDecimal.ZERO);
                         BigDecimal discountApplied = item.getUnitPrice().subtract(item.getFinalPrice());
@@ -251,7 +251,7 @@ public class OrderService {
                         OrderItemResponseDTO itemDTO = new OrderItemResponseDTO();
                         itemDTO.setVariantId(variant.getId());
                         itemDTO.setProductName(variant.getProduct().getName());
-                        itemDTO.setBasePrice(variant.getPurchasePrice());
+                        itemDTO.setPurchasePrice(variant.getPurchasePrice());
                         itemDTO.setMeasure(variant.getMeasure());
                         itemDTO.setQuantity(itemReq.getQuantity());
                         itemDTO.setFinalPrice(finalPrice);

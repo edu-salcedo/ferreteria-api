@@ -1,10 +1,8 @@
 package com.ferreteria_edu.ferreteria_api.product.service;
 
 import com.ferreteria_edu.ferreteria_api.order.service.PriceCalculatorService;
-import com.ferreteria_edu.ferreteria_api.product.dto.ImportResultDTO;
 import com.ferreteria_edu.ferreteria_api.product.dto.ProductDTO;
 import com.ferreteria_edu.ferreteria_api.exception.ResourceNotFoundException;
-import com.ferreteria_edu.ferreteria_api.product.dto.ProductImportDTO;
 import com.ferreteria_edu.ferreteria_api.product.dto.ProductVariantDTO;
 import com.ferreteria_edu.ferreteria_api.product.entity.ProductVariant;
 import com.ferreteria_edu.ferreteria_api.product.mapper.ProductMapper;
@@ -13,7 +11,6 @@ import com.ferreteria_edu.ferreteria_api.product.entity.Product;
 import com.ferreteria_edu.ferreteria_api.category.repository.CategoryRepository;
 import com.ferreteria_edu.ferreteria_api.product.mapper.ProductVariantMapper;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
-
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductVariantRepository;
 import com.ferreteria_edu.ferreteria_api.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +25,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +35,7 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final FileStorageService fileStorageService;
     private final ProductVariantRepository productVariantRepository;
-   private final PriceCalculatorService priceCalculatorService;
+    private final PriceCalculatorService priceCalculatorService;
 
     public ProductDTO create(ProductDTO dto, MultipartFile imageFile) {
 
@@ -63,8 +59,7 @@ public class ProductService {
 
                 // Calcular precio de venta
                 variant.setSalePrice(
-                        priceCalculatorService.calculateSalePrice(variant)
-                );
+                        priceCalculatorService.calculateSalePrice(variant));
 
                 product.getVariants().add(variant);
             });
@@ -74,16 +69,15 @@ public class ProductService {
 
         return ProductMapper.toDTO(saved);
     }
+
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto, MultipartFile imageFile) {
 
         Product existing = productRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Producto no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
         Category category = categoryRepository.findById(dto.getCategoryId())
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Categoría no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
 
         // Imagen
         if (imageFile != null && !imageFile.isEmpty()) {
@@ -153,7 +147,6 @@ public class ProductService {
         productRepository.delete(existing);
     }
 
-
     @Transactional
     public void processPdf(MultipartFile file) throws IOException {
 
@@ -167,8 +160,7 @@ public class ProductService {
 
         // Categoría por defecto
         Category categoriaDefault = categoryRepository.findById(1)
-                .orElseThrow(() ->
-                        new RuntimeException("Categoría por defecto no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Categoría por defecto no encontrada"));
 
         // Parsear productos
         List<ProductDTO> productos = parsearProductos(texto);
@@ -219,8 +211,7 @@ public class ProductService {
                     variant.setSalePrice(variantDTO.getSalePrice());
 
                     variant.setStock(
-                            variant.getStock() + variantDTO.getStock()
-                    );
+                            variant.getStock() + variantDTO.getStock());
                 }
             }
 
@@ -275,8 +266,7 @@ public class ProductService {
 
                             if (valores[j].matches("\\d+(\\.\\d+)?")) {
 
-                                BigDecimal purchasePrice =
-                                        new BigDecimal(valores[j]);
+                                BigDecimal purchasePrice = new BigDecimal(valores[j]);
 
                                 variant.setPurchasePrice(purchasePrice);
 
@@ -294,8 +284,7 @@ public class ProductService {
                 // Calcular margen automáticamente
                 BigDecimal margin = calculateProfitMargin(
                         dto.getCategoryId(),
-                        variant.getPurchasePrice()
-                );
+                        variant.getPurchasePrice());
 
                 variant.setProfitMargin(margin);
 
@@ -335,44 +324,41 @@ public class ProductService {
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 
-
     public BigDecimal calFinalPrice(ProductVariant variant) {
 
         return variant.getPurchasePrice()
                 .add(calProfit(variant));
     }
 
+    public BigDecimal calculateProfitMargin(Integer categoryId, BigDecimal price) {
 
-   public BigDecimal calculateProfitMargin(Integer categoryId, BigDecimal price) {
-
-            if (categoryId != null &&
-                    //acquasystem       awaduct
-                    (categoryId == 1 || categoryId == 2  || categoryId == 7 || categoryId == 14|| categoryId == 15|| categoryId == 19)) {
-                return BigDecimal.valueOf(35);
-            }
-       if (categoryId != null && categoryId == 13 ) {
-           return BigDecimal.valueOf(80);
-       }
-
-
-
-       if (categoryId != null && categoryId == 17 ) {
-           return BigDecimal.valueOf(60);
-       }
-
-            if (price.compareTo(BigDecimal.valueOf(100)) < 0) {
-                return BigDecimal.valueOf(200);
-            } else if (price.compareTo(BigDecimal.valueOf(500)) < 0) {
-                return BigDecimal.valueOf(120);
-            } else if (price.compareTo(BigDecimal.valueOf(1000)) < 0) {
-                return BigDecimal.valueOf(100);
-            } else if (price.compareTo(BigDecimal.valueOf(10000)) < 0) {
-                return BigDecimal.valueOf(60);
-            } else if (price.compareTo(BigDecimal.valueOf(20000)) < 0) {
-                return BigDecimal.valueOf(40);
-            }
-
+        if (categoryId != null &&
+        // acquasystem awaduct
+                (categoryId == 1 || categoryId == 2 || categoryId == 7 || categoryId == 14 || categoryId == 15
+                        || categoryId == 19)) {
             return BigDecimal.valueOf(35);
         }
+        if (categoryId != null && categoryId == 13) {
+            return BigDecimal.valueOf(80);
+        }
+
+        if (categoryId != null && categoryId == 17) {
+            return BigDecimal.valueOf(60);
+        }
+
+        if (price.compareTo(BigDecimal.valueOf(100)) < 0) {
+            return BigDecimal.valueOf(200);
+        } else if (price.compareTo(BigDecimal.valueOf(500)) < 0) {
+            return BigDecimal.valueOf(120);
+        } else if (price.compareTo(BigDecimal.valueOf(1000)) < 0) {
+            return BigDecimal.valueOf(100);
+        } else if (price.compareTo(BigDecimal.valueOf(10000)) < 0) {
+            return BigDecimal.valueOf(60);
+        } else if (price.compareTo(BigDecimal.valueOf(20000)) < 0) {
+            return BigDecimal.valueOf(40);
+        }
+
+        return BigDecimal.valueOf(35);
+    }
 
 }

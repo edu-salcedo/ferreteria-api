@@ -29,14 +29,14 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id", nullable = false)
+    @JoinColumn(name = "variant_id", nullable = true)
     private ProductVariant variant;
 
     @Column(nullable = false)
     private String productName;
 
     @Column(nullable = false)
-    private BigDecimal basePrice;
+    private BigDecimal purchasePrice;
 
     @Column(nullable = false)
     private String measure;
