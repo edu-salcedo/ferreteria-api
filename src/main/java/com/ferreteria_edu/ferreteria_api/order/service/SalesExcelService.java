@@ -27,8 +27,7 @@ public class SalesExcelService {
     private final SalesImportService salesImportService;
 
     public ImportSalesResultDTO importExcel(MultipartFile file) throws Exception {
-
-        System.out.println("--- ¡CÓDIGO NUEVO FUNCIONANDO! ---");
+        
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
         ImportSalesResultDTO result = new ImportSalesResultDTO();
@@ -61,28 +60,15 @@ public class SalesExcelService {
                     dto.setCreatedAt(LocalDate.parse(dateStr, dtf).atStartOfDay());
                 }
             }
-
-            // 2. ID ORDER / SALE NUMBER (Columna 1)
             String saleNumStr = formatter.formatCellValue(row.getCell(1)).replaceAll("[^0-9]", "");
             dto.setSaleNumber(saleNumStr.isEmpty() ? 0 : Integer.parseInt(saleNumStr));
-
-            // 3. PRODUCTO (Columna 2)
             dto.setProductName(formatter.formatCellValue(row.getCell(2)).trim());
-
-            // 4. CANTIDAD (Columna 3)
             String quantityStr = formatter.formatCellValue(row.getCell(3)).replaceAll("[^0-9]", "");
             dto.setQuantity(quantityStr.isEmpty() ? 0 : Integer.parseInt(quantityStr));
-
-            // 5. PRECIOS Y TOTALES (Columnas 4, 5, 6 y 7) utilizando double numérico
-            // directo de POI
-            dto.setPurchasePrice(
-                    BigDecimal.valueOf(row.getCell(4) != null ? row.getCell(4).getNumericCellValue() : 0.0));
-            dto.setPurchaseTotal(
-                    BigDecimal.valueOf(row.getCell(5) != null ? row.getCell(5).getNumericCellValue() : 0.0));
+            dto.setPurchasePrice(BigDecimal.valueOf(row.getCell(4) != null ? row.getCell(4).getNumericCellValue() : 0.0));
+            dto.setPurchaseTotal( BigDecimal.valueOf(row.getCell(5) != null ? row.getCell(5).getNumericCellValue() : 0.0));
             dto.setSalePrice(BigDecimal.valueOf(row.getCell(6) != null ? row.getCell(6).getNumericCellValue() : 0.0));
             dto.setSaleTotal(BigDecimal.valueOf(row.getCell(7) != null ? row.getCell(7).getNumericCellValue() : 0.0));
-
-            // 6. MEDIO DE PAGO (Columna 8 - Soporta celdas vacías de tu Excel)
             String payment = formatter.formatCellValue(row.getCell(8)).trim().toUpperCase();
 
             if (payment.isEmpty()) {
@@ -117,8 +103,6 @@ public class SalesExcelService {
                 dto.setInvoice(false);
                 dto.setInvoiceAmount(BigDecimal.ZERO);
             }
-            System.out.println(dto.isInvoice());
-            System.out.println(dto.getInvoiceAmount());
             // Guardar DTO procesado
             sales.add(dto);
         }

@@ -19,7 +19,8 @@ import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -130,9 +131,42 @@ public class ProductService {
     }
 
     public List<ProductDTO> findAll() {
-        return productRepository.findAll().stream()
+
+        long t1 = System.currentTimeMillis();
+
+        List<Product> products = productRepository.findAll();
+
+        long t2 = System.currentTimeMillis();
+
+        List<ProductDTO> dtos = products.stream()
                 .map(ProductMapper::toDTO)
                 .collect(Collectors.toList());
+
+        long t3 = System.currentTimeMillis();
+
+        System.out.println("Consulta BD: " + (t2 - t1) + " ms");
+        System.out.println("Mapeo DTO: " + (t3 - t2) + " ms");
+        System.out.println("TOTAL: " + (t3 - t1) + " ms");
+
+        return dtos;
+    }
+
+    public Page<ProductDTO> findByFilters(String search, Long categoryId, Pageable pageable) {
+        // Aseguramos que el parámetro de búsqueda nunca sea nulo para el query method
+        String searchParam = (search != null) ? search : "";
+
+        Page<Product> productPage;
+
+        // Evaluamos si el frontend envió un ID de categoría válido
+        if (categoryId != null) {
+            productPage = productRepository.findByNameContainingIgnoreCaseAndCategoryId(searchParam, categoryId,
+                    pageable);
+        } else {
+            productPage = productRepository.findByNameContainingIgnoreCase(searchParam, pageable);
+        }
+
+        // Mapeamos los resultados usando tu mapeador estático habitual
+        return productPage.map(ProductMapper::toDTO);
     }
 
     public ProductDTO findById(Long id) {

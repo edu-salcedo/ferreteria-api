@@ -20,6 +20,7 @@ public class OrderMapper {
         dto.setPaymentMethod(order.getPaymentMethod());
         dto.setTotalSurcharge(order.getSurcharge());
         dto.setInvoice(order.isInvoice());
+        dto.setInvoiceAmount(order.getInvoiceAmount());
 
         List<OrderItemResponseDTO> items = order.getItems()
                 .stream()

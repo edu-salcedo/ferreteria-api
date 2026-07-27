@@ -13,4 +13,5 @@ public class OrderRequestDTO {
     private BigDecimal surcharge; // %
     private PaymentMethod paymentMethod;
     private boolean invoice;
+    
 }
