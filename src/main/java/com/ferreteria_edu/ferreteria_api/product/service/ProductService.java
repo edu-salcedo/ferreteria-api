@@ -11,7 +11,6 @@ import com.ferreteria_edu.ferreteria_api.product.entity.Product;
 import com.ferreteria_edu.ferreteria_api.category.repository.CategoryRepository;
 import com.ferreteria_edu.ferreteria_api.product.mapper.ProductVariantMapper;
 import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
-import com.ferreteria_edu.ferreteria_api.product.repository.ProductVariantRepository;
 import com.ferreteria_edu.ferreteria_api.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -35,7 +34,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final FileStorageService fileStorageService;
-    private final ProductVariantRepository productVariantRepository;
+
     private final PriceCalculatorService priceCalculatorService;
 
     public ProductDTO create(ProductDTO dto, MultipartFile imageFile) {
@@ -73,60 +72,61 @@ public class ProductService {
 
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto, MultipartFile imageFile) {
-
         Product existing = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
 
-        // Imagen
+        // 1. Handle image updates
         if (imageFile != null && !imageFile.isEmpty()) {
             String path = fileStorageService.save(imageFile);
             existing.setImg(path);
         }
 
-        // Datos generales
+        // 2. Update general data
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
         existing.setState(dto.isState());
         existing.setCategory(category);
 
-        // Limpiar variantes actuales
-        existing.getVariants().clear();
-
-        // Agregar variantes recibidas
+        // 3. Process variants without using .clear()
         if (dto.getVariants() != null) {
+            List<ProductVariant> updatedVariants = new ArrayList<>();
 
             dto.getVariants().forEach(v -> {
-
                 ProductVariant variant;
 
+                // If the incoming variant has an ID, look it up in the existing collection
                 if (v.getId() != null) {
-
-                    variant = productVariantRepository
-                            .findById(v.getId())
+                    variant = existing.getVariants().stream()
+                            .filter(existingV -> existingV.getId().equals(v.getId()))
+                            .findFirst()
                             .orElse(new ProductVariant());
-
                 } else {
-
+                    // If it has no ID, it's a completely new variant row
                     variant = new ProductVariant();
                 }
 
+                // Sync the properties using fresh data from the DTO
                 variant.setMeasure(v.getMeasure());
                 variant.setPurchasePrice(v.getPurchasePrice());
                 variant.setProfitMargin(v.getProfitMargin());
-                variant.setSalePrice(v.getSalePrice());
                 variant.setStock(v.getStock());
-
                 variant.setProduct(existing);
 
-                existing.getVariants().add(variant);
+                // Explicitly force the sale price recalculation using your service
+                variant.setSalePrice(priceCalculatorService.calculateSalePrice(variant));
+
+                updatedVariants.add(variant);
             });
+
+            // Safe modification of the collection managed by Hibernate
+            existing.getVariants().clear();
+            existing.getVariants().addAll(updatedVariants);
         }
 
         Product saved = productRepository.save(existing);
-
         return ProductMapper.toDTO(saved);
     }
 
@@ -368,15 +368,14 @@ public class ProductService {
 
         if (categoryId != null &&
         // acquasystem awaduct
-                (categoryId == 1 || categoryId == 2 || categoryId == 7 || categoryId == 14 || categoryId == 15
-                        || categoryId == 19)) {
-            return BigDecimal.valueOf(35);
+                (categoryId == 1 || categoryId == 2 || categoryId == 8 || categoryId == 9 || categoryId == 19)) {
+            return BigDecimal.valueOf(45);
         }
-        if (categoryId != null && categoryId == 13) {
+        if (categoryId != null && categoryId == 14) {
             return BigDecimal.valueOf(80);
         }
 
-        if (categoryId != null && categoryId == 17) {
+        if (categoryId != null && categoryId == 18) {
             return BigDecimal.valueOf(60);
         }
 

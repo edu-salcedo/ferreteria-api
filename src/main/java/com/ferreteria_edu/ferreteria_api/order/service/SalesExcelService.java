@@ -27,7 +27,7 @@ public class SalesExcelService {
     private final SalesImportService salesImportService;
 
     public ImportSalesResultDTO importExcel(MultipartFile file) throws Exception {
-        
+
         Workbook workbook = WorkbookFactory.create(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
         ImportSalesResultDTO result = new ImportSalesResultDTO();
@@ -42,31 +42,63 @@ public class SalesExcelService {
                 continue;
 
             SaleImportDTO dto = new SaleImportDTO();
-
-            // 1. Manejo seguro de la FECHA (Columna 0)
+            // =========================================================================
+            // 1. MANEJO INTELIGENTE DE FECHA (Soporta archivos con y sin hora)
+            // =========================================================================
             Cell cellFecha = row.getCell(0);
-            if (cellFecha != null && cellFecha.getCellType() == CellType.NUMERIC
-                    && DateUtil.isCellDateFormatted(cellFecha)) {
-                LocalDate localDate = cellFecha.getDateCellValue().toInstant()
-                        .atZone(ZoneId.systemDefault())
-                        .toLocalDate();
-                dto.setCreatedAt(localDate.atStartOfDay());
-            } else {
-                // Alternativa si por alguna razón viene como texto plano en vez de número de
-                // fecha
-                String dateStr = formatter.formatCellValue(cellFecha).trim();
-                if (!dateStr.isEmpty()) {
-                    java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("M/d/yyyy");
-                    dto.setCreatedAt(LocalDate.parse(dateStr, dtf).atStartOfDay());
+            if (cellFecha != null) {
+                try {
+                    // Si Excel la reconoce nativamente como formato Fecha/Número
+                    if (cellFecha.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cellFecha)) {
+                        java.time.LocalDateTime excelDateTime = cellFecha.getLocalDateTimeCellValue();
+                        dto.setCreatedAt(excelDateTime);
+                    } else {
+                        // Si viene como Texto plano dentro de la celda
+                        String dateStr = formatter.formatCellValue(cellFecha).trim();
+
+                        if (!dateStr.isEmpty()) {
+                            // Definimos los dos formatos posibles en tus archivos de Excel
+                            java.time.format.DateTimeFormatter formatoConHora = java.time.format.DateTimeFormatter
+                                    .ofPattern("M/d/yyyy, h:mm:ss a", java.util.Locale.US);
+                            java.time.format.DateTimeFormatter formatoSoloFecha = java.time.format.DateTimeFormatter
+                                    .ofPattern("M/d/yyyy", java.util.Locale.US);
+
+                            // DETECCIÓN: Si el texto contiene dos puntos (:) o un espacio, es porque tiene
+                            // hora (Julio en adelante)
+                            if (dateStr.contains(":") || dateStr.contains("PM") || dateStr.contains("AM")) {
+                                dto.setCreatedAt(java.time.LocalDateTime.parse(dateStr, formatoConHora));
+                            } else {
+                                // Si no tiene hora, lo leemos como fecha corta (Antes de Julio) y le asignamos
+                                // las 00:00 hs
+                                java.time.LocalDate localDate = java.time.LocalDate.parse(dateStr, formatoSoloFecha);
+                                dto.setCreatedAt(localDate.atStartOfDay());
+                            }
+                        } else {
+                            // Si la celda está vacía en el Excel, le ponemos una fecha de control para
+                            // saber que falló
+                            dto.setCreatedAt(java.time.LocalDate.of(1970, 1, 1).atStartOfDay());
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error parseando fecha [" + formatter.formatCellValue(cellFecha) + "] en fila "
+                            + i + ": " + e.getMessage());
+                    // En lugar de poner la fecha de hoy, ponemos una fecha fija de error para poder
+                    // rastrearla en la BD
+                    dto.setCreatedAt(java.time.LocalDate.of(1970, 1, 1).atStartOfDay());
                 }
+            } else {
+                dto.setCreatedAt(java.time.LocalDate.of(1970, 1, 1).atStartOfDay());
             }
+
             String saleNumStr = formatter.formatCellValue(row.getCell(1)).replaceAll("[^0-9]", "");
             dto.setSaleNumber(saleNumStr.isEmpty() ? 0 : Integer.parseInt(saleNumStr));
             dto.setProductName(formatter.formatCellValue(row.getCell(2)).trim());
             String quantityStr = formatter.formatCellValue(row.getCell(3)).replaceAll("[^0-9]", "");
             dto.setQuantity(quantityStr.isEmpty() ? 0 : Integer.parseInt(quantityStr));
-            dto.setPurchasePrice(BigDecimal.valueOf(row.getCell(4) != null ? row.getCell(4).getNumericCellValue() : 0.0));
-            dto.setPurchaseTotal( BigDecimal.valueOf(row.getCell(5) != null ? row.getCell(5).getNumericCellValue() : 0.0));
+            dto.setPurchasePrice(
+                    BigDecimal.valueOf(row.getCell(4) != null ? row.getCell(4).getNumericCellValue() : 0.0));
+            dto.setPurchaseTotal(
+                    BigDecimal.valueOf(row.getCell(5) != null ? row.getCell(5).getNumericCellValue() : 0.0));
             dto.setSalePrice(BigDecimal.valueOf(row.getCell(6) != null ? row.getCell(6).getNumericCellValue() : 0.0));
             dto.setSaleTotal(BigDecimal.valueOf(row.getCell(7) != null ? row.getCell(7).getNumericCellValue() : 0.0));
             String payment = formatter.formatCellValue(row.getCell(8)).trim().toUpperCase();

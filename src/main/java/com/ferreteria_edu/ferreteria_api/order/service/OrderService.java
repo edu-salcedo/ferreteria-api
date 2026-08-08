@@ -31,8 +31,6 @@ import java.util.List;
 public class OrderService {
 
         private final OrderRepository orderRepository;
-        private final ProductRepository productRepository;
-        private final PriceCalculatorService priceCalculator;
         private final ProductVariantRepository variantRepository;
 
         // ----------------- CREAR PEDIDO -----------------
@@ -214,7 +212,8 @@ public class OrderService {
                                 throw new InsufficientStockException(
                                                 "Stock insuficiente para: " + variant.getMeasure());
                         }
-
+                        System.out.println("Precio BD: " + variant.getSalePrice());
+                        System.out.println("Cantidad: " + itemReq.getQuantity());
                         // ===============================================================
                         // CÁLCULO DE PRECIOS
                         BigDecimal unitPrice = variant.getSalePrice() != null ? variant.getSalePrice()
@@ -299,6 +298,10 @@ public class OrderService {
                 if (persist) {
                         order.setSubtotal(orderSubTotal);
                         order.setTotalAmount(orderTotal);
+                        if (request.isInvoice()) {
+
+                                order.setInvoiceAmount(orderTotal);
+                        }
                         orderRepository.save(order); // Guarda la orden final y propaga los ítems
                         response.setId(order.getId());
                 }
@@ -306,4 +309,10 @@ public class OrderService {
                 return response;
         }
 
+        public Long getLastOrderId() {
+                // Buscamos la última entidad completa guardada de forma óptima
+                return orderRepository.findFirstByOrderByIdDesc()
+                                .map(Order::getId) // Si existe, extraemos su ID
+                                .orElse(0L); // Si no existe (DB vacía), devolvemos 0
+        }
 }

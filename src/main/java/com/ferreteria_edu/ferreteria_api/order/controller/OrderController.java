@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -55,6 +57,12 @@ public class OrderController {
 
         service.deleteOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/last-id")
+    public ResponseEntity<Map<String, Long>> getLastOrderId() {
+        Long lastId = service.getLastOrderId();
+        return ResponseEntity.ok(java.util.Collections.singletonMap("lastId", lastId));
     }
 
 }
