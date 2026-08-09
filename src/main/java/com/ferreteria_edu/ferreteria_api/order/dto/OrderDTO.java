@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Getter
@@ -19,4 +20,6 @@ public class OrderDTO {
     private List<OrderItemDTO> items;
     private PaymentMethod paymentMethod;
     private int discount;
+    private boolean invoice;
+    private BigDecimal invoiceAmount;
 }

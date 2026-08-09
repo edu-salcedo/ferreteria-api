@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ferreteria_edu.ferreteria_api.product.dto.ProductDTO;
 import com.ferreteria_edu.ferreteria_api.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("products")
@@ -18,11 +21,22 @@ import java.util.List;
 public class ProductController {
     private final ProductService service;
 
+    // @GetMapping
+    // public ResponseEntity<List<ProductDTO>> findAll() {
+    // return ResponseEntity.ok(service.findAll());
+    // }
 
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> findAll() {
-        return ResponseEntity.ok(service.findAll());
+    public ResponseEntity<Page<ProductDTO>> findAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ProductDTO> products = service.findByFilters(search, categoryId, pageable);
+        return ResponseEntity.ok(products);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findById(id));
@@ -31,8 +45,7 @@ public class ProductController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProductDTO create(
             @RequestPart("product") String productJson,
-            @RequestPart(value = "image", required = false) MultipartFile imageFile
-    ) throws JsonProcessingException {
+            @RequestPart(value = "image", required = false) MultipartFile imageFile) throws JsonProcessingException {
         ProductDTO dto = new ObjectMapper().readValue(productJson, ProductDTO.class);
         return service.create(dto, imageFile);
     }
@@ -69,9 +82,11 @@ public class ProductController {
         }
     }
 
-
-    /** @GetMapping("/category/{categoria}")
-     public ResponseEntity<List<ProductDTO>> findByCategory(@PathVariable String categoria) {
-         return ResponseEntity.ok(service.findByCategory(categoria));
-     }**/
+    /**
+     * @GetMapping("/category/{categoria}")
+     * public ResponseEntity<List<ProductDTO>> findByCategory(@PathVariable String
+     * categoria) {
+     * return ResponseEntity.ok(service.findByCategory(categoria));
+     * }
+     **/
 }

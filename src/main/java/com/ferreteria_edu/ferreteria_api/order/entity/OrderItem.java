@@ -1,5 +1,6 @@
 package com.ferreteria_edu.ferreteria_api.order.entity;
 
+import com.ferreteria_edu.ferreteria_api.product.entity.ProductVariant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,34 +23,39 @@ import java.math.BigDecimal;
 @Builder
 @Entity
 public class OrderItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id", nullable = true)
+    private ProductVariant variant;
 
     @Column(nullable = false)
     private String productName;
 
     @Column(nullable = false)
+    private BigDecimal purchasePrice;
+
+    @Column(nullable = false)
+    private String measure;
+
+    @Column(nullable = false)
     private Integer quantity;
 
     @Column(nullable = false)
-    private BigDecimal basePrice;
-
-    @Column(nullable = false)
-    private BigDecimal unit_price;
-
-    private BigDecimal finalPrice;
-
-    private BigDecimal discountApplied;
-
-    // evita que Order se carga automáticamente cuando cargas el OrderItem
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
+    private BigDecimal unitPrice;
 
     @Column(nullable = false)
     private BigDecimal subtotal;
+
+    @Column(name = "final_price", nullable = false)
+    private BigDecimal finalPrice;
+    @Column(name = "discount_applied")
+    private BigDecimal discountApplied;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 }

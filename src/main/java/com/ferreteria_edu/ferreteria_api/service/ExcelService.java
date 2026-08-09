@@ -1,20 +1,11 @@
 package com.ferreteria_edu.ferreteria_api.service;
 
-import com.ferreteria_edu.ferreteria_api.product.dto.ProductDTO;
-import com.ferreteria_edu.ferreteria_api.product.mapper.ProductMapper;
-import com.ferreteria_edu.ferreteria_api.category.entity.Category;
-import com.ferreteria_edu.ferreteria_api.product.entity.Product;
-import com.ferreteria_edu.ferreteria_api.product.service.ProductService;
-import com.ferreteria_edu.ferreteria_api.category.repository.CategoryRepository;
-import com.ferreteria_edu.ferreteria_api.product.repository.ProductRepository;
+import com.ferreteria_edu.ferreteria_api.product.dto.ImportResultDTO;
+import com.ferreteria_edu.ferreteria_api.product.dto.ProductImportDTO;
+import com.ferreteria_edu.ferreteria_api.product.service.ProductImportService;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,23 +13,24 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.math.BigDecimal;
 
-
-
 @Service
 @RequiredArgsConstructor
 public class ExcelService {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final ProductService productService;
+    private final ProductImportService productImportService;
 
-    public void ExcelImport(MultipartFile file) throws Exception {
+    public ImportResultDTO importExcel(MultipartFile file) throws Exception {
 
         String filename = file.getOriginalFilename();
+
         if (filename == null ||
-                !(filename.toLowerCase().endsWith(".xlsx") || filename.toLowerCase().endsWith(".xls"))) {
-            throw new Exception("Solo se permiten archivos Excel (.xlsx o .xls)");
+                !(filename.toLowerCase().endsWith(".xlsx")
+                        || filename.toLowerCase().endsWith(".xls"))) {
+
+            throw new RuntimeException("Solo se permiten archivos Excel");
         }
+
+        ImportResultDTO result = new ImportResultDTO();
 
         try (InputStream is = file.getInputStream()) {
 
@@ -46,90 +38,129 @@ public class ExcelService {
                     ? new XSSFWorkbook(is)
                     : new HSSFWorkbook(is);
 
+            FormulaEvaluator evaluator =
+                    workbook.getCreationHelper().createFormulaEvaluator();
+
             Sheet sheet = workbook.getSheetAt(0);
-            FormulaEvaluator evaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
             for (Row row : sheet) {
-                if (row.getRowNum() == 0) continue; // encabezado
 
-                Cell imgCell = row.getCell(0, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell nameCell = row.getCell(2, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell categoryCell = row.getCell(3, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell stockCell = row.getCell(4, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-                Cell priceCell = row.getCell(5, Row.MissingCellPolicy.RETURN_BLANK_AS_NULL);
-
-
-                if (nameCell == null || priceCell == null) continue;
-
-                String name = nameCell.getStringCellValue().trim();
-                if (name.isEmpty()) continue;
-
-                /* ========= CATEGORY ========= */
-                String categoryName = "NUEVO";
-                if (categoryCell != null && categoryCell.getCellType() == CellType.STRING) {
-                    categoryName = categoryCell.getStringCellValue().trim();
+                // Saltar encabezado
+                if (row.getRowNum() == 0) {
+                    continue;
                 }
 
-                final String finalCategoryName = categoryName;
+                String name = getString(row.getCell(2));
 
-                Category category = categoryRepository
-                        .findByNameIgnoreCase(finalCategoryName)
-                        .orElseGet(() -> {
-                            Category c = new Category();
-                            c.setName(finalCategoryName);
-                            return categoryRepository.save(c);
-                        });
-
-                /* ========= STOCK (cantidad) ========= */
-                int stock = 0;
-                if (stockCell != null) {
-                    Cell evaluatedStock = evaluator.evaluateInCell(stockCell);
-                    if (evaluatedStock.getCellType() == CellType.NUMERIC) {
-                        stock = (int) evaluatedStock.getNumericCellValue();
-                    }
+                if (name == null || name.isBlank()) {
+                    continue;
                 }
 
-                /* ========= PRICE ========= */
-                BigDecimal price = BigDecimal.ZERO;
-                //evalua si la celda tiene una fórmula si no queda el mismo valor
-                Cell evaluatedPrice = evaluator.evaluateInCell(priceCell);
+                ProductImportDTO dto = ProductImportDTO.builder()
+                        .name(name.trim().toUpperCase())
+                        .image(getString(row.getCell(0)))
+                        .categoryName(getCategory(row))
+                        .measure( getString(row.getCell(4))) // luego podés leer otra columna
+                        .stock(getInt(row.getCell(5), evaluator))
+                        .purchasePrice(getPrice(row.getCell(6), evaluator))
+                        .build();
 
-                if (evaluatedPrice.getCellType() == CellType.NUMERIC) {
-                    price = BigDecimal.valueOf(evaluatedPrice.getNumericCellValue());
-                } else if (evaluatedPrice.getCellType() == CellType.STRING) {
-                    String raw = evaluatedPrice.getStringCellValue().trim();
-                    if (!raw.equalsIgnoreCase("s/precio")) {
-                        raw = raw.replace(".", "").replace(",", ".");
-                        try {
-                            price = new BigDecimal(raw);
-                        } catch (Exception ignored) {
-                            price = BigDecimal.ZERO;
-                        }
-                    }
-                }
+                ImportResultDTO partial =
+                        productImportService.createOrUpdate(dto);
 
-                String image = null;
-                if (imgCell != null && imgCell.getCellType() == CellType.STRING) {
-                    image = imgCell.getStringCellValue().trim();
-                }
-                BigDecimal margin = productService.calculateProfitMargin(category.getId(), price);
-                if (margin == null) margin = BigDecimal.valueOf(40);
+                result.setNewProducts(
+                        result.getNewProducts()
+                                + partial.getNewProducts());
 
-                /* ========= PRODUCT ========= */
+                result.setUpdatedProducts(
+                        result.getUpdatedProducts()
+                                + partial.getUpdatedProducts());
 
-                ProductDTO dto = new ProductDTO();
-                dto.setName(name);
-                dto.setPurchasePrice(price);
-                dto.setStock(stock);
-                dto.setCategoryId(category.getId());
-                dto.setCategoryName(category.getName());
-                dto.setImg(image);
-                dto.setProfitMargin(margin);
-                Product product = ProductMapper.toEntity(dto, category);
-                product.setStock(stock);
+                result.setNewVariants(
+                        result.getNewVariants()
+                                + partial.getNewVariants());
 
-                productRepository.save(product);
+                result.setUpdatedVariants(
+                        result.getUpdatedVariants()
+                                + partial.getUpdatedVariants());
+
+                result.setNewCategories(
+                        result.getNewCategories()
+                                + partial.getNewCategories());
             }
+
+            workbook.close();
+        }
+
+        return result;
+    }
+
+    // ===========================
+    // HELPERS
+    // ===========================
+
+    private String getCategory(Row row) {
+
+        String category = getString(row.getCell(3));
+
+        if (category == null || category.isBlank()) {
+            return "SIN CATEGORIA";
+        }
+
+        return category.trim().toUpperCase();
+    }
+
+    private String getString(Cell cell) {
+
+        if (cell == null) {
+            return null;
+        }
+
+        return cell.toString().trim();
+    }
+
+    private int getInt(Cell cell, FormulaEvaluator evaluator) {
+
+        if (cell == null) {
+            return 0;
+        }
+
+        Cell evaluated = evaluator.evaluateInCell(cell);
+
+        if (evaluated.getCellType() == CellType.NUMERIC) {
+            return (int) evaluated.getNumericCellValue();
+        }
+
+        return 0;
+    }
+
+    private BigDecimal getPrice(Cell cell,
+                                FormulaEvaluator evaluator) {
+
+        if (cell == null) {
+            return BigDecimal.ZERO;
+        }
+
+        Cell evaluated = evaluator.evaluateInCell(cell);
+
+        if (evaluated.getCellType() == CellType.NUMERIC) {
+
+            return BigDecimal.valueOf(
+                    evaluated.getNumericCellValue()
+            );
+        }
+
+        try {
+
+            String value = evaluated.toString()
+                    .replace(".", "")
+                    .replace(",", ".");
+
+            return new BigDecimal(value);
+
+        } catch (Exception e) {
+
+            return BigDecimal.ZERO;
         }
     }
 }
