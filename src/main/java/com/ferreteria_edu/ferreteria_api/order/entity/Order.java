@@ -1,5 +1,7 @@
 package com.ferreteria_edu.ferreteria_api.order.entity;
 
+import com.ferreteria_edu.ferreteria_api.enun.DocumentType;
+import com.ferreteria_edu.ferreteria_api.enun.OrderType;
 import com.ferreteria_edu.ferreteria_api.enun.PaymentMethod;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,12 +48,31 @@ public class Order {
 
     @Column(nullable = false)
     private BigDecimal invoiceAmount = BigDecimal.ZERO;
+    // Dentro de tu archivo Order.java
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_type", nullable = false)
+    private OrderType orderType; // PRESUPUESTO o VENTA
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "document_type", nullable = false)
+    private DocumentType documentType; // FACTURA, TIQUE, REMITO, NINGUNO
+
+    @Column(name = "pos_number")
+    private Integer posNumber; // Siempre será 1 según tus comprobantes reales
+
+    @Column(name = "invoice_number")
+    private Long invoiceNumber; // Guardará la secuencia limpia (124, 377, etc.)
+
+    @Column(name = "invoice_type")
+    private String invoiceType; // Guardará "C" si corresponde a un documento fiscal
 
     // EL TRUCO: Coloca el @Builder aquí arriba de tu constructor completo
     @Builder
     public Order(Long id, LocalDateTime createdAt, List<OrderItem> items, BigDecimal totalAmount,
             BigDecimal subtotal, BigDecimal surcharge, BigDecimal discount,
-            PaymentMethod paymentMethod, boolean invoice, BigDecimal invoiceAmount) {
+            PaymentMethod paymentMethod, boolean invoice, BigDecimal invoiceAmount, OrderType orderType,
+            DocumentType documentType, Integer posNumber,
+            Long invoiceNumber, String invoiceType) {
         this.id = id;
         // Si usas el builder y no pasas el valor, usará el valor por defecto de la
         // variable
@@ -64,9 +85,27 @@ public class Order {
         this.paymentMethod = paymentMethod != null ? paymentMethod : PaymentMethod.EFECTIVO;
         this.invoice = invoice;
         this.invoiceAmount = invoiceAmount != null ? invoiceAmount : BigDecimal.ZERO;
+        this.orderType = orderType;
+        this.documentType = documentType;
+        this.posNumber = posNumber;
+        this.invoiceNumber = invoiceNumber;
+        this.invoiceType = invoiceType;
     }
 
     // Tus métodos de negocio se quedan igual...
+    public boolean isBudget() {
+        return OrderType.BUDGET.equals(this.orderType);
+    }
+
+    public boolean isInternalSale() {
+        return OrderType.SALE.equals(this.orderType) && !DocumentType.INVOICE.equals(this.documentType);
+    }
+
+    public boolean isArcaInvoice() {
+        return OrderType.SALE.equals(this.orderType) && DocumentType.INVOICE.equals(this.documentType);
+    }
+
+    // --- Métodos de negocio existentes ---
     public void calculateSubtotal() {
         this.subtotal = items.stream()
                 .map(OrderItem::getSubtotal)
@@ -80,4 +119,5 @@ public class Order {
         this.items.add(item);
         item.setOrder(this);
     }
+
 }

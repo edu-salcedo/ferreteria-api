@@ -45,25 +45,23 @@
 			<scope>runtime</scope>
 		</dependency>
 
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>5.5.1</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.5.1</version>
+		</dependency>
 
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>2.0.30</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>2.0.30</version>
-        </dependency>
-
+		<!-- CORREGIDO: Lombok limpio manejado por el parent de Spring Boot -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
-            <version>1.18.40</version>
-            <scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -75,17 +73,10 @@
 
 	<build>
 		<plugins>
+			<!-- CORREGIDO: Se eliminó la configuración vieja de annotationProcessorPaths que rompía Lombok -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</path>
-					</annotationProcessorPaths>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

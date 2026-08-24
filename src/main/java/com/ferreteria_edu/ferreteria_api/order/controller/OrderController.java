@@ -1,5 +1,6 @@
 package com.ferreteria_edu.ferreteria_api.order.controller;
 
+import com.ferreteria_edu.ferreteria_api.enun.DocumentType;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderRequestDTO;
 import com.ferreteria_edu.ferreteria_api.order.dto.OrderResponseDTO;
 import com.ferreteria_edu.ferreteria_api.order.service.OrderService;
@@ -13,9 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,20 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> previewOrder(@RequestBody OrderRequestDTO request) {
         OrderResponseDTO dto = service.calculateOrder(request);
         return ResponseEntity.ok(dto);
+    }
+    
+     @PutMapping("/{id}/convert-to-sale")
+    public ResponseEntity<OrderResponseDTO> convertBudgetToSale(
+            @PathVariable Long id,
+            @RequestParam DocumentType targetDocumentType,
+            @RequestParam(required = false) Integer posNumber,
+            @RequestParam(required = false) Long invoiceNumber,
+            @RequestParam(required = false) String invoiceType) {
+        
+        OrderResponseDTO response = service.convertBudgetToSale(
+                id, targetDocumentType, posNumber, invoiceNumber, invoiceType
+        );
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
